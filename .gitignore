@@ -67,6 +67,7 @@ typings/
 \#*#
 
 yarn.lock
+Dockerfile
 
 #.sandbox
 /public/.sandbox
