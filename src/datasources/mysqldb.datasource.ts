@@ -2,7 +2,6 @@ import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {SequelizeDataSource} from '@loopback/sequelize';
 
 const config = {
-  dialect: 'mysql',
   name: 'mysqldb',
   connector: 'mysql',
   sequelizeOptions: {
