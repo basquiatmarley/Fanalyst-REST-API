@@ -2,7 +2,7 @@ import {Entity, belongsTo, model, property} from '@loopback/repository';
 import {SportsGroups} from './sports-groups.model';
 
 @model({
-  name: 'events',
+  name: 'clubs',
 })
 export class Clubs extends Entity {
 
