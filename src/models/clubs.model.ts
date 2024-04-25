@@ -1,7 +1,9 @@
 import {Entity, belongsTo, model, property} from '@loopback/repository';
 import {SportsGroups} from './sports-groups.model';
 
-@model()
+@model({
+  name: 'events',
+})
 export class Clubs extends Entity {
 
   @property({

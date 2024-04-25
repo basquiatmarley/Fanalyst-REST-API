@@ -1,7 +1,9 @@
-import {Entity, model, property, belongsTo} from '@loopback/repository';
+import {Entity, belongsTo, model, property} from '@loopback/repository';
 import {SportsGroups} from './sports-groups.model';
 
-@model()
+@model({
+  name: 'sports',
+})
 export class Sports extends Entity {
 
   @property({

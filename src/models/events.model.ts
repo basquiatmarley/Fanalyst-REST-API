@@ -7,7 +7,9 @@ import {Sports} from './sports.model';
 import {UsersComments} from './users-comments.model';
 import {UsersPredictions} from './users-predictions.model';
 
-@model()
+@model({
+  name: 'events',
+})
 export class Events extends Entity {
 
   @property({
