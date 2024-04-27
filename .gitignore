@@ -67,6 +67,7 @@ typings/
 \#*#
 
 yarn.lock
+package.lock
 Dockerfile
 
 #.sandbox

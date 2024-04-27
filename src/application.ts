@@ -15,6 +15,7 @@ import multer from 'multer';
 import {MysqldbDataJuglerSource} from './datasources';
 import {FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY} from './keys';
 import {MySequence} from './sequence';
+import {EMAIL_SERVICE, EmailService} from './services/mailers.service';
 
 export {ApplicationConfig};
 
@@ -35,6 +36,8 @@ export class FanalystApiLbApplication extends BootMixin(
       path: '/explorer',
     });
     this.component(RestExplorerComponent);
+
+
     // Configure file upload with multer options
     this.configureFileUpload(options.fileStorageDirectory);
 
@@ -63,6 +66,10 @@ export class FanalystApiLbApplication extends BootMixin(
     this.component(JWTAuthenticationComponent);
     // Bind datasource
     this.dataSource(MysqldbDataJuglerSource, UserServiceBindings.DATASOURCE_NAME);
+
+    this.bind(EMAIL_SERVICE).toClass(EmailService);
+
+
   }
   protected configureFileUpload(destination?: string) {
     // Upload files to `dist/.sandbox` by default

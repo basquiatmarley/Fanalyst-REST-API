@@ -58,7 +58,7 @@ export class Users extends Entity {
   @property({
     type: 'string',
   })
-  imageUrl?: string; // Optional profile image URL
+  imageUrl?: string;
 
   @property({
     type: 'number',
@@ -84,6 +84,21 @@ export class Users extends Entity {
     type: 'date',
   })
   updatedAt?: string; // Last update timestamp
+
+  @property({
+    type: 'string',
+    required: false,
+    jsonSchema: {
+      maxLength: 5, // Last name varchar(50)
+    },
+  })
+  otp: string;
+
+
+  @property({
+    type: 'date',
+  })
+  otp_expired?: string | null;
 
   @property({
     type: 'number',

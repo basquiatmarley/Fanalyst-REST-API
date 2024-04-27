@@ -17,6 +17,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {genSalt, hash} from 'bcryptjs';
 import {Users} from '../models';
 import {UsersRepository} from '../repositories';
 
@@ -157,11 +158,3 @@ export class UsersController {
     await this.usersRepository.deleteById(id);
   }
 }
-function hash(password: string, arg1: any): string | PromiseLike<string> {
-  throw new Error('Function not implemented.');
-}
-
-function genSalt(): any {
-  throw new Error('Function not implemented.');
-}
-

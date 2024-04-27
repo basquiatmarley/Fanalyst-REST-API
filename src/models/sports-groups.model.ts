@@ -36,6 +36,12 @@ export class SportsGroups extends Entity {
   imageUrl?: string;
 
   @property({
+    type: 'string', // Image URL for the sport
+
+  })
+  backgroundUrl?: string;
+
+  @property({
     type: 'date', // Timestamp for record creation
     default: () => new Date(),
   })

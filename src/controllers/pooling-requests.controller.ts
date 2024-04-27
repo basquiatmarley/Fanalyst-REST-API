@@ -137,16 +137,19 @@ export class PoolingRequestsController {
       const responseJson = parseJson(responseString);
       const now = new Date().toISOString();
       if (data.type == "sports") {
-        const groupSports = responseJson.reduce((acc: {[x: string]: any[];}, item: {[x: string]: any;}) => {
+        var SportsObject = [];
+
+        const groupSports = responseJson.reduce((acc: {[x: string]: any;}, item: {[x: string]: string;}) => {
           const key = item['group'];
+          // console.log(key)
+          console.log
           if (!acc[key]) {
             acc[key] = [];
           }
           acc[key].push(item);
           return acc;
         }, {});
-
-        for (const [keySportGroup, items] of groupSports) {
+        for (const [keySportGroup, items] of Object.entries(groupSports)) {
           const getSportsGroup = await this.sportsGroupsRepository.findOne({where: {title: keySportGroup.trim()}});
           let sportsGroupId: number | undefined;;
           if (getSportsGroup) {
@@ -161,18 +164,21 @@ export class PoolingRequestsController {
               createdAt: now,
               updatedAt: now
             }
-            // If it doesn't exist, create a new sports group and get its ID
-            const groupSave = await this.sportsGroupsRepository.create(dataSaved);
-            sportsGroupId = groupSave.id;
+            await this.sportsGroupsRepository.create(dataSaved);
+
           }
-          for (const [, sport] of items) {
-            const getSport = await this.sportsRepository.findOne({where: {key: sport.key.trim()}});
+        }
+        for (const eventData of responseJson) {
+          const findOneSportGroup = await this.sportsGroupsRepository.findOne({where: {title: eventData.group}});
+          if (findOneSportGroup) {
+            const sportsGroupId = findOneSportGroup.id;
+            const getSport = await this.sportsRepository.findOne({where: {key: eventData.key.trim()}});
             if (!getSport) {
               const dataSaved = {
                 sportsGroupId: sportsGroupId,
-                title: sport.title.trim(),
-                status: sport.active,
-                key: sport.key.trim(),
+                title: eventData.title.trim(),
+                status: eventData.active,
+                key: eventData.key.trim(),
                 imageUrl: "",
                 createdAt: now,
                 updatedAt: now
@@ -181,14 +187,15 @@ export class PoolingRequestsController {
             } else {
               const dataSaved = {
                 sportsGroupId: sportsGroupId,
-                title: sport.title.trim(),
-                status: sport.active,
-                key: sport.key.trim(),
+                title: eventData.title.trim(),
+                status: eventData.active,
+                key: eventData.key.trim(),
                 updatedAt: now
               }
               await this.sportsRepository.updateById(getSport.id, dataSaved);
             }
           }
+
         }
       } else if (data.type == "events") {
         for (const eventDataJson of responseJson) {
@@ -347,8 +354,6 @@ export class PoolingRequestsController {
           }
         }
       }
-
-
       return {"message": "success"};
     } catch (error) {
       console.log(error)
