@@ -201,7 +201,9 @@ export class PoolingRequestsController {
         for (const eventDataJson of responseJson) {
           const filter = {where: {key: eventDataJson.sport_key.trim()}};
           const getSport = await this.sportsRepository.findOne(filter);
-          let homeClub = await this.clubsRepository.findOne({where: {name: eventDataJson.home_team.trim()}});
+          let homeClubName = eventDataJson.home_team.trim();
+          let awayClubName = eventDataJson.away_team.trim();
+          let homeClub = await this.clubsRepository.findOne({where: {name: homeClubName}});
           if (!homeClub) {
             homeClub = await this.clubsRepository.create({
               sportsGroupId: getSport?.sportsGroupId,
@@ -212,7 +214,7 @@ export class PoolingRequestsController {
               updatedAt: now
             });
           }
-          let awayClub = await this.clubsRepository.findOne({where: {name: eventDataJson.away_team.trim()}});
+          let awayClub = await this.clubsRepository.findOne({where: {name: awayClubName}});
           if (!awayClub) {
             awayClub = await this.clubsRepository.create({
               sportsGroupId: getSport?.sportsGroupId,
@@ -225,7 +227,11 @@ export class PoolingRequestsController {
           }
           const existEventData = await this.eventsRepository.findOne({where: {id: eventDataJson.id}});
           let newEvent: Events;
+          const commenceTime = eventDataJson.commence_time;
 
+          // Parse commence_time into a JavaScript Date object
+          const parsedDate = new Date(commenceTime);
+          const formatedCommencTIme = parsedDate.toUTCString();
           if (!existEventData) {
             // Create new event
             newEvent = await this.eventsRepository.create({
@@ -233,7 +239,7 @@ export class PoolingRequestsController {
               sportsGroupId: getSport?.sportsGroupId,
               sportId: getSport?.id,
               status: 1,
-              commenceTime: eventDataJson.commence_time,
+              commenceTime: formatedCommencTIme,
               awayClubId: awayClub.id,
               homeClubId: homeClub.id,
               completed: 0,
@@ -243,10 +249,8 @@ export class PoolingRequestsController {
           } else {
             // Update existing event
             await this.eventsRepository.updateById(eventDataJson.id, {
-              sportsGroupId: getSport?.sportsGroupId,
-              sportId: getSport?.id,
               status: 1,
-              commenceTime: eventDataJson.commence_time,
+              commenceTime: formatedCommencTIme,
               awayClubId: awayClub.id,
               homeClubId: homeClub.id,
               updatedAt: now // Updated only
@@ -269,7 +273,21 @@ export class PoolingRequestsController {
                   const bookmakerTitleF = itemBookmaker.title.trim();
 
                   for (const market of itemBookmaker.markets) {
-
+                    let mOddsHomePoint = 0;
+                    let mOddsAwayPoint = 0;
+                    let mOddsHomePrice = 0;
+                    let mOddsAwayPrice = 0;
+                    if (homeClubName == market.outcomes[0].name.trim()) {
+                      mOddsHomePoint = market.outcomes[0].point;
+                      mOddsAwayPoint = market.outcomes[1].point;
+                      mOddsHomePrice = market.outcomes[0].price;
+                      mOddsAwayPrice = market.outcomes[1].price;
+                    } else {
+                      mOddsHomePoint = market.outcomes[0].point;
+                      mOddsAwayPoint = market.outcomes[1].point;
+                      mOddsHomePrice = market.outcomes[0].price;
+                      mOddsAwayPrice = market.outcomes[1].price;
+                    }
                     // Find existing odds based on event ID and market key
                     const findTheOdds = await this.oddsRepository.findOne({
                       where: {
@@ -288,10 +306,10 @@ export class PoolingRequestsController {
                         bookmakerKey: bookmakerKeyF,
                         bookmakerTitle: bookmakerTitleF,
                         marketsKey: market.key,
-                        oddsHomePoint: market.outcomes[0].point,
-                        oddsAwayPoint: market.outcomes[1].point,
-                        oddsHomePrice: market.outcomes[0].price,
-                        oddsAwayPrice: market.outcomes[1].price,
+                        oddsHomePoint: mOddsHomePoint,
+                        oddsAwayPoint: mOddsAwayPoint,
+                        oddsHomePrice: mOddsHomePrice,
+                        oddsAwayPrice: mOddsAwayPrice,
                         createdAt: now, // Using current date/time
                         updatedAt: now,
                       });
@@ -301,10 +319,10 @@ export class PoolingRequestsController {
                         bookmakerKey: bookmakerKeyF,
                         bookmakerTitle: bookmakerTitleF,
                         marketsKey: market.key,
-                        oddsHomePoint: market.outcomes[0].point,
-                        oddsAwayPoint: market.outcomes[1].point,
-                        oddsHomePrice: market.outcomes[0].price,
-                        oddsAwayPrice: market.outcomes[1].price,
+                        oddsHomePoint: mOddsHomePoint,
+                        oddsAwayPoint: mOddsAwayPoint,
+                        oddsHomePrice: mOddsHomePrice,
+                        oddsAwayPrice: mOddsAwayPrice,
                         updatedAt: now, // Update timestamp
                       });
                     }

@@ -98,7 +98,7 @@ export class Users extends Entity {
   @property({
     type: 'date',
   })
-  otp_expired?: string | null;
+  otpExpired?: string | null;
 
   @property({
     type: 'number',

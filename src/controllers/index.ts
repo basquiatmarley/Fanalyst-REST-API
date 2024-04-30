@@ -20,3 +20,5 @@ export * from './users-comments.controller';
 export * from './users-predictions.controller';
 export * from './users.controller';
 export * from './events-odds.controller';
+export * from './sports-groups-sports.controller';
+export * from './sports-events.controller';

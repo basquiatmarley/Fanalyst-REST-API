@@ -71,12 +71,14 @@ export class Events extends Entity {
   sportId: number;
 
   @belongsTo(() => Clubs, {
+    name: 'homeClub',
     keyFrom: 'homeClubId',
     keyTo: 'id',
   })
   homeClubId: number;
 
   @belongsTo(() => Clubs, {
+    name: 'awayClub',
     keyFrom: 'awayClubId',
     keyTo: 'id',
   })

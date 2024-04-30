@@ -1,5 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
-
+import {Entity, model, property, hasMany} from '@loopback/repository';
+import {Sports} from './sports.model';
 
 @model({
   name: 'sports_groups',
@@ -67,7 +67,10 @@ export class SportsGroups extends Entity {
     type: 'number',
     default: 0,
   })
-  statusDeleted: number; // Default value indicating if the record is deleted
+  statusDeleted: number;
+
+  @hasMany(() => Sports, {keyTo: 'sportsGroupId'})
+  sports: Sports[];
 
   constructor(data?: Partial<SportsGroups>) {
     super(data); // Initialize the model with the given data

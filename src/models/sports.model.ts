@@ -1,5 +1,6 @@
-import {Entity, belongsTo, model, property} from '@loopback/repository';
+import {Entity, belongsTo, model, property, hasMany} from '@loopback/repository';
 import {SportsGroups} from './sports-groups.model';
+import {Events} from './events.model';
 
 @model({
   name: 'sports',
@@ -74,6 +75,9 @@ export class Sports extends Entity {
 
   @belongsTo(() => SportsGroups)
   sportsGroupId: number;
+
+  @hasMany(() => Events, {keyTo: 'sportId'})
+  events: Events[];
 
   constructor(data?: Partial<Sports>) {
     super(data); // Initialize the model with given data

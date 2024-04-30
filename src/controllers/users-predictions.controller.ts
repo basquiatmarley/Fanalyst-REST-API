@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,8 +23,8 @@ import {UsersPredictionsRepository} from '../repositories';
 export class UsersPredictionsController {
   constructor(
     @repository(UsersPredictionsRepository)
-    public usersPredictionsRepository : UsersPredictionsRepository,
-  ) {}
+    public usersPredictionsRepository: UsersPredictionsRepository,
+  ) { }
 
   @post('/users-predictions')
   @response(200, {
@@ -37,7 +37,7 @@ export class UsersPredictionsController {
         'application/json': {
           schema: getModelSchemaRef(UsersPredictions, {
             title: 'NewUsersPredictions',
-            exclude: ['id'],
+            exclude: ['id', 'updatedBy', 'updatedAt', 'statusDeleted'],
           }),
         },
       },

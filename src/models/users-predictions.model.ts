@@ -36,9 +36,10 @@ export class UsersPredictions extends Entity {
   createdAt?: string;
 
   @property({
-    type: 'number',
+    type: 'number', // ID of the person who created the record
+
   })
-  createdBy?: number;
+  createdBy?: number; // Optional field for creator's ID
 
   @property({
     type: 'date',
@@ -48,11 +49,11 @@ export class UsersPredictions extends Entity {
   @property({
     type: 'number',
   })
-  updatedBy?: number;
+  updatedBy?: number; // Optional field for updater's ID
 
   @property({
-    type: 'number', // Status indicating if the record is deleted
-
+    type: 'number',
+    default: 0,
   })
   statusDeleted: number;
 

@@ -1,8 +1,3 @@
-// Copyright IBM Corp. and LoopBack contributors 2020. All Rights Reserved.
-// Node module: @loopback/example-todo-jwt
-// This file is licensed under the MIT License.
-// License text available at https://opensource.org/licenses/MIT
-
 import {authenticate, TokenService} from '@loopback/authentication';
 import {
   UserRepository as JWTUserRepository,
@@ -155,7 +150,7 @@ export class AuthController {
       content: {
         'application/json': {
           schema: getModelSchemaRef(Users, {
-            title: 'Sign Up Schema',
+            title: 'Edit Profile Schema',
             exclude: [
               'id',
               'statusDeleted',
@@ -213,7 +208,7 @@ export class AuthController {
     existingUser.otp = otp;
     const newDateNow = new Date;
     const newDateExpired = new Date(newDateNow.getTime() + (3 * 60 * 60 * 1000)); // 3 HOURS
-    existingUser.otp_expired = newDateExpired.toString();
+    existingUser.otpExpired = newDateExpired.toString();
 
     await this.usersRepository.updateById(existingUser.id, existingUser);
     try {
@@ -245,14 +240,14 @@ export class AuthController {
   ): Promise<{"message": string}> {
     const otpf = request.otp;
     const newDateNow = new Date;
-    const existingUser = await this.usersRepository.findOne({where: {otp: otpf, otp_expired: {gt: newDateNow.toString()}}});
+    const existingUser = await this.usersRepository.findOne({where: {otp: otpf, otpExpired: {gt: newDateNow.toString()}}});
 
     if (!existingUser) {
       throw new HttpErrors.NotFound(`OTP IS NOT VALID.`);
     }
 
     existingUser.otp = "";
-    existingUser.otp_expired = null;
+    existingUser.otpExpired = null;
     existingUser.password = await hash(request.password, await genSalt());
     await this.usersRepository.updateById(existingUser.id, existingUser);
 
