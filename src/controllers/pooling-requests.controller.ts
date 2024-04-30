@@ -262,69 +262,71 @@ export class PoolingRequestsController {
 
           if (newEvent) {
             // Retrieve bookmakers from 'item'
-            const bookmakers = eventDataJson.bookmakers;
+            if (eventDataJson.bookmakers != undefined) {
+              const bookmakers = eventDataJson.bookmakers;
 
-            // Check if there are any bookmakers to process
-            if (bookmakers.length > 0) {
-              for (const itemBookmaker of bookmakers) {
-                // Check if 'markets' are available
-                if (itemBookmaker.markets.length > 0) {
-                  const bookmakerKeyF = itemBookmaker.key;
-                  const bookmakerTitleF = itemBookmaker.title.trim();
+              // Check if there are any bookmakers to process
+              if (bookmakers.length > 0) {
+                for (const itemBookmaker of bookmakers) {
+                  // Check if 'markets' are available
+                  if (itemBookmaker.markets.length > 0) {
+                    const bookmakerKeyF = itemBookmaker.key;
+                    const bookmakerTitleF = itemBookmaker.title.trim();
 
-                  for (const market of itemBookmaker.markets) {
-                    let mOddsHomePoint = 0;
-                    let mOddsAwayPoint = 0;
-                    let mOddsHomePrice = 0;
-                    let mOddsAwayPrice = 0;
-                    if (homeClubName == market.outcomes[0].name.trim()) {
-                      mOddsHomePoint = market.outcomes[0].point;
-                      mOddsAwayPoint = market.outcomes[1].point;
-                      mOddsHomePrice = market.outcomes[0].price;
-                      mOddsAwayPrice = market.outcomes[1].price;
-                    } else {
-                      mOddsHomePoint = market.outcomes[0].point;
-                      mOddsAwayPoint = market.outcomes[1].point;
-                      mOddsHomePrice = market.outcomes[0].price;
-                      mOddsAwayPrice = market.outcomes[1].price;
-                    }
-                    // Find existing odds based on event ID and market key
-                    const findTheOdds = await this.oddsRepository.findOne({
-                      where: {
-                        eventId: newEvent.id,
-                        bookmakerKey: bookmakerKeyF,
-                        marketsKey: market.key,
-                      },
-                    });
-
-
-                    // Check if odds already exist or if they need to be created/updated
-                    if (!findTheOdds) {
-                      // No odds found; create a new one
-                      await this.oddsRepository.create({
-                        eventId: newEvent.id,
-                        bookmakerKey: bookmakerKeyF,
-                        bookmakerTitle: bookmakerTitleF,
-                        marketsKey: market.key,
-                        oddsHomePoint: mOddsHomePoint,
-                        oddsAwayPoint: mOddsAwayPoint,
-                        oddsHomePrice: mOddsHomePrice,
-                        oddsAwayPrice: mOddsAwayPrice,
-                        createdAt: now, // Using current date/time
-                        updatedAt: now,
+                    for (const market of itemBookmaker.markets) {
+                      let mOddsHomePoint = 0;
+                      let mOddsAwayPoint = 0;
+                      let mOddsHomePrice = 0;
+                      let mOddsAwayPrice = 0;
+                      if (homeClubName == market.outcomes[0].name.trim()) {
+                        mOddsHomePoint = market.outcomes[0].point;
+                        mOddsAwayPoint = market.outcomes[1].point;
+                        mOddsHomePrice = market.outcomes[0].price;
+                        mOddsAwayPrice = market.outcomes[1].price;
+                      } else {
+                        mOddsHomePoint = market.outcomes[0].point;
+                        mOddsAwayPoint = market.outcomes[1].point;
+                        mOddsHomePrice = market.outcomes[0].price;
+                        mOddsAwayPrice = market.outcomes[1].price;
+                      }
+                      // Find existing odds based on event ID and market key
+                      const findTheOdds = await this.oddsRepository.findOne({
+                        where: {
+                          eventId: newEvent.id,
+                          bookmakerKey: bookmakerKeyF,
+                          marketsKey: market.key,
+                        },
                       });
-                    } else {
-                      // Odds found; update the existing record
-                      await this.oddsRepository.updateById(findTheOdds.id, {
-                        bookmakerKey: bookmakerKeyF,
-                        bookmakerTitle: bookmakerTitleF,
-                        marketsKey: market.key,
-                        oddsHomePoint: mOddsHomePoint,
-                        oddsAwayPoint: mOddsAwayPoint,
-                        oddsHomePrice: mOddsHomePrice,
-                        oddsAwayPrice: mOddsAwayPrice,
-                        updatedAt: now, // Update timestamp
-                      });
+
+
+                      // Check if odds already exist or if they need to be created/updated
+                      if (!findTheOdds) {
+                        // No odds found; create a new one
+                        await this.oddsRepository.create({
+                          eventId: newEvent.id,
+                          bookmakerKey: bookmakerKeyF,
+                          bookmakerTitle: bookmakerTitleF,
+                          marketsKey: market.key,
+                          oddsHomePoint: mOddsHomePoint,
+                          oddsAwayPoint: mOddsAwayPoint,
+                          oddsHomePrice: mOddsHomePrice,
+                          oddsAwayPrice: mOddsAwayPrice,
+                          createdAt: now, // Using current date/time
+                          updatedAt: now,
+                        });
+                      } else {
+                        // Odds found; update the existing record
+                        await this.oddsRepository.updateById(findTheOdds.id, {
+                          bookmakerKey: bookmakerKeyF,
+                          bookmakerTitle: bookmakerTitleF,
+                          marketsKey: market.key,
+                          oddsHomePoint: mOddsHomePoint,
+                          oddsAwayPoint: mOddsAwayPoint,
+                          oddsHomePrice: mOddsHomePrice,
+                          oddsAwayPrice: mOddsAwayPrice,
+                          updatedAt: now, // Update timestamp
+                        });
+                      }
                     }
                   }
                 }
