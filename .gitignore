@@ -69,6 +69,7 @@ typings/
 yarn.lock
 package.lock
 Dockerfile
+package-lock.json
 
 #.sandbox
 /public/.sandbox

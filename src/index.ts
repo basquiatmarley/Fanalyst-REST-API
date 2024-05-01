@@ -1,4 +1,5 @@
 import {ApplicationConfig, FanalystApiLbApplication} from './application';
+import {PoolingApiJob} from './cronjob/pooling_api.cronjob';
 
 export * from './application';
 
@@ -12,6 +13,8 @@ export async function main(options: ApplicationConfig = {}) {
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);
+
+  new PoolingApiJob(app);
 
   return app;
 }
