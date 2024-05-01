@@ -164,7 +164,6 @@ export class UsersController {
         ]
       }
     });
-    console.log(existingUser);
     if (existingUser) {
       throw new HttpErrors.Conflict(`User with email ${userData.email} already exists`);
     }
@@ -172,7 +171,7 @@ export class UsersController {
     if (userData.password != undefined && userData.password != '') {
       userData.password = await hash(userData.password, await genSalt());
     }
-    await this.usersRepository.replaceById(id, userData);
+    await this.usersRepository.updateById(id, userData);
     return this.usersRepository.findById(id);
   }
 

@@ -139,9 +139,8 @@ export class AuthController {
 
   @authenticate('jwt')
   @post('/auth/edit-profile')
-  @response(200, {
-    description: 'User model instance',
-    content: {'application/json': {schema: getModelSchemaRef(Users)}},
+  @response(204, {
+    description: 'User PUT success',
   })
   async editProfile(
     @inject(SecurityBindings.USER)
@@ -149,39 +148,30 @@ export class AuthController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {
-            title: 'Edit Profile Schema',
-            exclude: [
-              'id',
-              'statusDeleted',
-              'imageUrl',
-              'password',
-              'createdAt',
-              'createdBy',
-              'updatedAt',
-              'updatedBy',
-              'statusDeleted',
-              'status'
-            ],
-          }),
+          schema: getModelSchemaRef(Users, {partial: true, }),
         },
       },
-    })
-    user: Omit<Users, 'id'>,
+    }) userData: Users,
   ): Promise<Users> {
-    var uId: number = Number(currentUserProfile[securityId]);
-    const existingUser = await this.usersRepository.findOne({where: {id: uId}});
-
-    if (existingUser) {
-      throw new HttpErrors.Conflict(`User not found`);
+    const uId: number = Number(currentUserProfile[securityId]);
+    const emailValidationCheck = await this.usersRepository.findOne({
+      where: {
+        and: [
+          {email: userData.email},
+          {id: {neq: uId}},
+        ]
+      }
+    });
+    if (emailValidationCheck) {
+      throw new HttpErrors.Conflict(`User with email ${userData.email} already exists`);
     }
-    if (user.password != '') {
-      user.password = await hash(user.password, await genSalt());
-    }
-    await this.usersRepository.updateById(uId, user);
-    const savedUser = await this.usersRepository.findById(uId);
 
-    return savedUser;
+
+    if (userData.password != undefined && userData.password != '') {
+      userData.password = await hash(userData.password, await genSalt());
+    }
+    await this.usersRepository.updateById(uId, userData);
+    return this.usersRepository.findById(uId);
   }
 
   @post('/auth/forgot')
