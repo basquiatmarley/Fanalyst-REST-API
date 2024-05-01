@@ -3,7 +3,7 @@ import axios, {AxiosInstance} from 'axios';
 import cron from 'node-cron';
 
 import {Events} from '../models/events.model';
-import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, SportsRepository} from '../repositories';
+import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, ScoresRepository, SportsRepository, UsersPredictionsRepository} from '../repositories';
 
 export class PoolingApiJob {
   private context: Context;
@@ -12,19 +12,21 @@ export class PoolingApiJob {
 
   constructor(context: Context) {
     this.context = context;
-    this.apiKey = '39b5dd2bc8dc38dbec2de21203b28fd0';
+    this.apiKey = 'f7908319c61839eca4f6a86320b70f80';
     this.client = axios.create({
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
     });
-    this.getMatchsEvents();
     cron.schedule('00 00 * * *', async () => {
       await this.getMatchsEvents();
+    }).start();
+    this.getScores();
+    cron.schedule('30 * * * *', async () => {
+      await this.getScores();
     }).start();
   }
 
   private async getMatchsEvents() {
-    console.log("EXECUTE GET MATCH");
     const sportsRepository = await this.context.get<SportsRepository>('repositories.SportsRepository');
     const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
     const clubsRepository = await this.context.get<ClubsRepository>('repositories.ClubsRepository');
@@ -33,7 +35,7 @@ export class PoolingApiJob {
     const sportsList = await sportsRepository.find({
       // "limit": 2,
       "where": {
-        "key": {nlike: "%winner"},
+        // "key": {nlike: "%winner"},
         "status": 1
       },
       "include": [
@@ -52,7 +54,7 @@ export class PoolingApiJob {
     if (Array.isArray(sportsList)) {
       for (const sport of sportsList) {
         var url = `sports/${sport.key}/odds?apiKey=${this.apiKey}&regions=us,uk&markets=spreads&dateFormat=iso&oddsFormat=decimal`;
-        console.log(url);
+
         var poolingDataSaved = await poolingRequestRepository.create({
           urlRequest: url,
           type: "events",
@@ -232,6 +234,119 @@ export class PoolingApiJob {
       }
     } else {
       console.error('sportsList is not an array or is empty.');
+    }
+  }
+  private async getScores() {
+    console.log("EXECUTE GET MATCH");
+    const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
+    const scoresRepository = await this.context.get<ScoresRepository>('repositories.ScoresRepository');
+    const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
+    const usersPredictionsRepository = await this.context.get<UsersPredictionsRepository>('repositories.UsersPredictionsRepository');
+    const now = new Date();
+
+    const events = await eventsRepository.find({
+      // "limit": 30,
+      "where": {
+        "commenceTime": {lt: now},
+        "completed": 0
+      },
+      "include": [
+        {
+          "relation": "sport",
+          "required": true,
+          "scope": {
+            "where": {
+              "status": 1,
+              // "key": "soccer_korea_kleague1"
+            }
+          }
+        }
+      ]
+    });
+    if (Array.isArray(events)) {
+      for (const event of events) {
+        var url = `sports/${event.sport.key}/scores?apiKey=${this.apiKey}&daysFrom=2&dateFormat=iso&eventIds=${event.id}`;
+        console.log(url);
+        var poolingDataSaved = await poolingRequestRepository.create({
+          urlRequest: url,
+          type: "scores",
+        });
+        var responseMsg = "";
+        try {
+          var response = await this.client.get(url);
+          if (response.status == 200) {
+            if (response.data.length > 0) {
+              var responseData = response.data;
+              if (Array.isArray(responseData)) {
+                for (const dataScore of responseData) {
+                  console.log(dataScore);
+                  const findScoreEvent = await scoresRepository.findOne({where: {eventId: event.id}});
+                  if (!findScoreEvent) {
+                    await scoresRepository.create({
+                      eventId: event.id,
+                      homeScore: dataScore.scores[0].score,
+                      awayScore: dataScore.scores[1].score,
+                      completed: dataScore.completed,
+                      createdAt: now.toISOString(),
+                      updatedAt: now.toISOString()
+                    })
+                    responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_teamn}\n`;
+                  } else {
+                    await scoresRepository.updateById(findScoreEvent.id, {
+                      eventId: event.id,
+                      homeScore: dataScore.scores[0].score,
+                      awayScore: dataScore.scores[1].score,
+                      completed: dataScore.completed,
+                      updatedAt: now.toISOString()
+                    })
+                    responseMsg += `UPDATED SCORE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                  }
+                  if (dataScore.completed) {
+                    const winnerStatus = (dataScore.scores[0].score > dataScore.scores[1].score) ? 1 : ((dataScore.scores[0].score == dataScore.scores[1].score) ? 3 : 2);
+                    responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                    await eventsRepository.updateById(event.id, {
+                      completed: 1,
+                      winner: winnerStatus,
+                      updatedAt: now.toISOString(),
+                    });
+                    usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
+                      eventId: event.id,
+                      predictedTeam: winnerStatus
+                    });
+                    usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
+                      eventId: event.id,
+                      predictedTeam: {neq: winnerStatus}
+                    });
+                    responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                  }
+                }
+              }
+            } else {
+              responseMsg = "RESULT POOLING EMPTY\n";
+              await eventsRepository.updateById(event.id, {
+                completed: 1,
+                updatedAt: now.toISOString(),
+              });
+            }
+          } else {
+            responseMsg = "GET REQUEST ERROR";
+          }
+        } catch (e) {
+          // console.log(e.response);
+          if (e.response) {
+            responseMsg += "Error status: " + e + '\n';
+            responseMsg += "Error data: " + e.response.data.message + '\n';
+          } else {
+            responseMsg += e + '\n';
+          }
+
+          // responseMsg += e.data.message;
+
+        }
+        await poolingRequestRepository.updateById(poolingDataSaved.id, {response: responseMsg});
+      }
+    } else {
+      console.error('events is not an array or is empty.');
     }
   }
 }
