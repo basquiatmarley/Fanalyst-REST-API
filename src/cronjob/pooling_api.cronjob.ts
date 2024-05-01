@@ -33,7 +33,7 @@ export class PoolingApiJob {
     const sportsList = await sportsRepository.find({
       // "limit": 2,
       "where": {
-        "key": "americanfootball_ncaaf_championship_winner",
+        "key": {nlike: "%winner"},
         "status": 1
       },
       "include": [
