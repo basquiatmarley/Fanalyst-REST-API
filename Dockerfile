@@ -23,9 +23,9 @@ RUN npm run build
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 ENV HOST=0.0.0.0 PORT=3000
-ENV DB_HOST=202.157.187.179
-ENV DB_USER=remote_db
-ENV DB_PASSWORD=remote@DB4ADmN!@
+ENV DB_HOST=72.167.39.109
+ENV DB_USER=user_fanalyst
+ENV DB_PASSWORD=F4n4ly!@sTSid90120
 ENV DB_PORT=3306
 ENV DB_NAME=fanalyst
 

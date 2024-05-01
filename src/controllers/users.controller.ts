@@ -122,7 +122,7 @@ export class UsersController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {partial: true}),
+          schema: getModelSchemaRef(Users, {partial: true, }),
         },
       },
     })
@@ -141,12 +141,18 @@ export class UsersController {
   })
   async replaceById(
     @param.path.number('id') id: number,
-    @requestBody() user: Users,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Users, {partial: true, }),
+        },
+      },
+    }) userData: Users,
   ): Promise<Users> {
-    if (user.password != '') {
-      user.password = await hash(user.password, await genSalt());
+    if (userData.password != undefined && userData.password != '') {
+      userData.password = await hash(userData.password, await genSalt());
     }
-    await this.usersRepository.replaceById(id, user);
+    await this.usersRepository.replaceById(id, userData);
     return this.usersRepository.findById(id);
   }
 

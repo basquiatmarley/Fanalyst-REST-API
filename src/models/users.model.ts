@@ -51,7 +51,6 @@ export class Users extends Entity {
 
   @property({
     type: 'string',
-    required: true,
   })
   password: string; // Note: Passwords should be securely hashed
 

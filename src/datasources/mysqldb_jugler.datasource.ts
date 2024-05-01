@@ -2,7 +2,7 @@ import {inject, lifeCycleObserver, LifeCycleObserver} from '@loopback/core';
 import {juggler} from '@loopback/repository';
 
 const config = {
-  name: 'mysqldb',
+  name: 'mysqldbauth',
   connector: 'mysql',
   host: process.env.DB_HOST || 'localhost',
   port: process.env.DB_PORT || 8889,
@@ -15,11 +15,11 @@ const config = {
 @lifeCycleObserver('datasource')
 export class MysqldbDataJuglerSource extends juggler.DataSource
   implements LifeCycleObserver {
-  static dataSourceName = 'mysqldb';
+  static dataSourceName = 'mysqldbauth';
   static readonly defaultConfig = config;
 
   constructor(
-    @inject('datasources.config.mysqldb', {optional: true})
+    @inject('datasources.config.mysqldbauth', {optional: true})
     dsConfig: object = config,
   ) {
     super(dsConfig);
