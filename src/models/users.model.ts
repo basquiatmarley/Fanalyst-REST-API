@@ -44,6 +44,7 @@ export class Users extends Entity {
     required: true,
     index: true, // Adding index for faster lookups
     jsonSchema: {
+      uniqueItems: true,
       format: 'email', // Ensures valid email format
     },
   })
@@ -91,7 +92,7 @@ export class Users extends Entity {
       maxLength: 5, // Last name varchar(50)
     },
   })
-  otp: string;
+  otp: string | '';
 
 
   @property({

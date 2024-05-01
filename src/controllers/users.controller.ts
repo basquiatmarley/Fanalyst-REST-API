@@ -10,6 +10,7 @@ import {
   del,
   get,
   getModelSchemaRef,
+  HttpErrors,
   param,
   patch,
   post,
@@ -45,6 +46,12 @@ export class UsersController {
     })
     user: Omit<Users, 'id'>,
   ): Promise<Users> {
+    const existingUser = await this.usersRepository.findOne({where: {email: user.email}});
+
+    if (existingUser) {
+      throw new HttpErrors.Conflict(`User with email ${user.email} already exists`);
+    }
+
     user.password = await hash(user.password, await genSalt());
     return this.usersRepository.create(user);
   }
@@ -131,7 +138,7 @@ export class UsersController {
     if (user.password != '') {
       user.password = await hash(user.password, await genSalt());
     }
-    await this.usersRepository.updateById(id, user);
+    await this.usersRepository.replaceById(id, user);
     return this.usersRepository.findById(id);
   }
 
@@ -149,6 +156,19 @@ export class UsersController {
       },
     }) userData: Users,
   ): Promise<Users> {
+    const existingUser = await this.usersRepository.findOne({
+      where: {
+        and: [
+          {email: userData.email},
+          {id: {neq: id}},
+        ]
+      }
+    });
+    console.log(existingUser);
+    if (existingUser) {
+      throw new HttpErrors.Conflict(`User with email ${userData.email} already exists`);
+    }
+
     if (userData.password != undefined && userData.password != '') {
       userData.password = await hash(userData.password, await genSalt());
     }
