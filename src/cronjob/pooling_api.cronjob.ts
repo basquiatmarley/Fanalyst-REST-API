@@ -286,49 +286,53 @@ export class PoolingApiJob {
               if (Array.isArray(responseData)) {
                 for (const dataScore of responseData) {
                   console.log(dataScore);
-                  if (dataScore.scores.length > 0) {
-                    const findScoreEvent = await scoresRepository.findOne({where: {eventId: event.id}});
-                    if (!findScoreEvent) {
-                      await scoresRepository.create({
-                        eventId: event.id,
-                        homeScore: dataScore.scores[0].score,
-                        awayScore: dataScore.scores[1].score,
-                        completed: dataScore.completed,
-                        createdAt: now.toISOString(),
-                        updatedAt: now.toISOString()
-                      })
-                      responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_teamn}\n`;
+                  if (dataScore.scores != null) {
+                    if (dataScore.scores.length > 0) {
+                      const findScoreEvent = await scoresRepository.findOne({where: {eventId: event.id}});
+                      if (!findScoreEvent) {
+                        await scoresRepository.create({
+                          eventId: event.id,
+                          homeScore: dataScore.scores[0].score,
+                          awayScore: dataScore.scores[1].score,
+                          completed: dataScore.completed,
+                          createdAt: now.toISOString(),
+                          updatedAt: now.toISOString()
+                        })
+                        responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_teamn}\n`;
+                      } else {
+                        await scoresRepository.updateById(findScoreEvent.id, {
+                          eventId: event.id,
+                          homeScore: dataScore.scores[0].score,
+                          awayScore: dataScore.scores[1].score,
+                          completed: dataScore.completed,
+                          updatedAt: now.toISOString()
+                        })
+                        responseMsg += `UPDATED SCORE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                      }
+                      // dataScore.completed = true;
+                      if (dataScore.completed) {
+                        const winnerStatus = (dataScore.scores[0].score > dataScore.scores[1].score) ? 1 : ((dataScore.scores[0].score == dataScore.scores[1].score) ? 3 : 2);
+                        responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                        await eventsRepository.updateById(event.id, {
+                          completed: 1,
+                          winner: winnerStatus,
+                          updatedAt: now.toISOString(),
+                        });
+                        usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
+                          eventId: event.id,
+                          predictedTeam: winnerStatus
+                        });
+                        usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
+                          eventId: event.id,
+                          predictedTeam: {neq: winnerStatus}
+                        });
+                        responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                      }
                     } else {
-                      await scoresRepository.updateById(findScoreEvent.id, {
-                        eventId: event.id,
-                        homeScore: dataScore.scores[0].score,
-                        awayScore: dataScore.scores[1].score,
-                        completed: dataScore.completed,
-                        updatedAt: now.toISOString()
-                      })
-                      responseMsg += `UPDATED SCORE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                      responseMsg += "RESULT SCORE EMPTY\n";
                     }
-                    if (dataScore.completed) {
-                      const winnerStatus = (dataScore.scores[0].score > dataScore.scores[1].score) ? 1 : ((dataScore.scores[0].score == dataScore.scores[1].score) ? 3 : 2);
-                      responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
-                      await eventsRepository.updateById(event.id, {
-                        completed: 1,
-                        winner: winnerStatus,
-                        updatedAt: now.toISOString(),
-                      });
-                      usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
-                        eventId: event.id,
-                        predictedTeam: winnerStatus
-                      });
-                      usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
-                        eventId: event.id,
-                        predictedTeam: {neq: winnerStatus}
-                      });
-                      responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} \n `;
-                    }
-                  } else {
-                    responseMsg += "RESULT SCORE EMPTY\n";
                   }
+
                 }
               }
             } else {
