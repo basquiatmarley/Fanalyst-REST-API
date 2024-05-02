@@ -3,7 +3,7 @@ import axios, {AxiosInstance} from 'axios';
 import cron from 'node-cron';
 
 import {Events} from '../models/events.model';
-import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, ScoresRepository, SportsRepository, UsersPredictionsRepository} from '../repositories';
+import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, ScoresRepository, SportsGroupsRepository, SportsRepository, UsersPredictionsRepository} from '../repositories';
 
 export class PoolingApiJob {
   private context: Context;
@@ -18,10 +18,13 @@ export class PoolingApiJob {
       timeout: 5000, // Set a request timeout
     });
     cron.schedule('00 00 * * *', async () => {
+      await this.getSports();
+    }).start();
+    cron.schedule('03 00 * * *', async () => {
       await this.getMatchsEvents();
     }).start();
-    this.getScores();
-    cron.schedule('30 * * * *', async () => {
+    // this.getScores();
+    cron.schedule('15 * * * *', async () => {
       await this.getScores();
     }).start();
   }
@@ -237,7 +240,7 @@ export class PoolingApiJob {
     }
   }
   private async getScores() {
-    console.log("EXECUTE GET MATCH");
+    console.log("EXECUTE GET SCORES");
     const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
     const scoresRepository = await this.context.get<ScoresRepository>('repositories.ScoresRepository');
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
@@ -280,56 +283,60 @@ export class PoolingApiJob {
               if (Array.isArray(responseData)) {
                 for (const dataScore of responseData) {
                   console.log(dataScore);
-                  const findScoreEvent = await scoresRepository.findOne({where: {eventId: event.id}});
-                  if (!findScoreEvent) {
-                    await scoresRepository.create({
-                      eventId: event.id,
-                      homeScore: dataScore.scores[0].score,
-                      awayScore: dataScore.scores[1].score,
-                      completed: dataScore.completed,
-                      createdAt: now.toISOString(),
-                      updatedAt: now.toISOString()
-                    })
-                    responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_teamn}\n`;
+                  if (dataScore.scores.length > 0) {
+                    const findScoreEvent = await scoresRepository.findOne({where: {eventId: event.id}});
+                    if (!findScoreEvent) {
+                      await scoresRepository.create({
+                        eventId: event.id,
+                        homeScore: dataScore.scores[0].score,
+                        awayScore: dataScore.scores[1].score,
+                        completed: dataScore.completed,
+                        createdAt: now.toISOString(),
+                        updatedAt: now.toISOString()
+                      })
+                      responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_teamn}\n`;
+                    } else {
+                      await scoresRepository.updateById(findScoreEvent.id, {
+                        eventId: event.id,
+                        homeScore: dataScore.scores[0].score,
+                        awayScore: dataScore.scores[1].score,
+                        completed: dataScore.completed,
+                        updatedAt: now.toISOString()
+                      })
+                      responseMsg += `UPDATED SCORE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                    }
+                    if (dataScore.completed) {
+                      const winnerStatus = (dataScore.scores[0].score > dataScore.scores[1].score) ? 1 : ((dataScore.scores[0].score == dataScore.scores[1].score) ? 3 : 2);
+                      responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                      await eventsRepository.updateById(event.id, {
+                        completed: 1,
+                        winner: winnerStatus,
+                        updatedAt: now.toISOString(),
+                      });
+                      usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
+                        eventId: event.id,
+                        predictedTeam: winnerStatus
+                      });
+                      usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
+                        eventId: event.id,
+                        predictedTeam: {neq: winnerStatus}
+                      });
+                      responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                    }
                   } else {
-                    await scoresRepository.updateById(findScoreEvent.id, {
-                      eventId: event.id,
-                      homeScore: dataScore.scores[0].score,
-                      awayScore: dataScore.scores[1].score,
-                      completed: dataScore.completed,
-                      updatedAt: now.toISOString()
-                    })
-                    responseMsg += `UPDATED SCORE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
-                  }
-                  if (dataScore.completed) {
-                    const winnerStatus = (dataScore.scores[0].score > dataScore.scores[1].score) ? 1 : ((dataScore.scores[0].score == dataScore.scores[1].score) ? 3 : 2);
-                    responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
-                    await eventsRepository.updateById(event.id, {
-                      completed: 1,
-                      winner: winnerStatus,
-                      updatedAt: now.toISOString(),
-                    });
-                    usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
-                      eventId: event.id,
-                      predictedTeam: winnerStatus
-                    });
-                    usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
-                      eventId: event.id,
-                      predictedTeam: {neq: winnerStatus}
-                    });
-                    responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+                    responseMsg += "RESULT SCORE EMPTY\n";
                   }
                 }
               }
             } else {
-              responseMsg = "RESULT POOLING EMPTY\n";
+              responseMsg += "RESULT POOLING EMPTY\n";
               await eventsRepository.updateById(event.id, {
                 completed: 1,
                 updatedAt: now.toISOString(),
               });
             }
           } else {
-            responseMsg = "GET REQUEST ERROR";
+            responseMsg += "GET REQUEST ERROR";
           }
         } catch (e) {
           // console.log(e.response);
@@ -348,5 +355,84 @@ export class PoolingApiJob {
     } else {
       console.error('events is not an array or is empty.');
     }
+  }
+
+  private async getSports() {
+    console.log("EXECUTE GET Sports");
+    const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
+    const sportsGroupsRepository = await this.context.get<SportsGroupsRepository>('repositories.SportsGroupsRepository');
+    const sportsRepository = await this.context.get<SportsRepository>('repositories.SportsRepository');
+    const now = new Date().toISOString();
+
+    var url = `sports?apiKey=${this.apiKey}&all=true`;
+    var poolingDataSaved = await poolingRequestRepository.create({
+      urlRequest: url,
+      type: "sports",
+    });
+    var responseMsg = "";
+    try {
+      var response = await this.client.get(url);
+      if (response.status == 200) {
+        if (response.data.length > 0) {
+          var responseData = response.data;
+          if (Array.isArray(responseData)) {
+            for (const dataSport of responseData) {
+              var getSportsGroup = await sportsGroupsRepository.findOne({where: {title: dataSport.key.trim()}});
+              if (getSportsGroup) {
+                const dataSaved = {
+                  title: dataSport.key.trim(),
+                  statusHotest: 1,
+                  status: 1,
+                  imageUrl: "",
+                  createdAt: now,
+                  updatedAt: now
+                }
+                getSportsGroup = await sportsGroupsRepository.create(dataSaved);
+              }
+              const getSport = await sportsRepository.findOne({where: {key: dataSport.key.trim()}});
+              if (!getSport) {
+                const dataSaved = {
+                  sportsGroupId: getSportsGroup?.id,
+                  title: dataSport.title.trim(),
+                  status: dataSport.active,
+                  key: dataSport.key.trim(),
+                  imageUrl: "",
+                  createdAt: now,
+                  updatedAt: now
+                }
+                await sportsRepository.create(dataSaved);
+                responseMsg += `NEW SAVED SPORT : ${dataSport.title}\n`;
+              } else {
+                const dataSaved = {
+                  sportsGroupId: getSportsGroup?.id,
+                  title: dataSport.title.trim(),
+                  status: dataSport.active,
+                  key: dataSport.key.trim(),
+                  updatedAt: now
+                }
+                await sportsRepository.updateById(getSport.id, dataSaved);
+                responseMsg += `UPDATE SPORT : ${dataSport.title}\n`;
+              }
+            }
+          }
+        } else {
+          responseMsg = "RESULT POOLING EMPTY\n";
+        }
+      } else {
+        responseMsg = "GET REQUEST ERROR";
+      }
+    } catch (e) {
+      // console.log(e.response);
+      if (e.response) {
+        responseMsg += "Error status: " + e + '\n';
+        responseMsg += "Error data: " + e.response.data.message + '\n';
+      } else {
+        responseMsg += e + '\n';
+      }
+
+      // responseMsg += e.data.message;
+
+    }
+    await poolingRequestRepository.updateById(poolingDataSaved.id, {response: responseMsg});
   }
 }
