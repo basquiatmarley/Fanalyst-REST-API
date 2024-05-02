@@ -22,3 +22,4 @@ export * from './users.controller';
 export * from './events-odds.controller';
 export * from './sports-groups-sports.controller';
 export * from './sports-events.controller';
+export * from './users-predictions-events.controller';

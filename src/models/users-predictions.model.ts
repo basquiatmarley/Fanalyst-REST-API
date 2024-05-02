@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, belongsTo, model, property} from '@loopback/repository';
+import {Events} from './events.model';
 
 @model({
   name: 'users_predictions',
@@ -11,13 +12,6 @@ export class UsersPredictions extends Entity {
     generated: true, // Auto-incremented primary key
   })
   id: number;
-
-  @property({
-    type: 'string', // Event ID is a foreign key
-
-  })
-  eventId: string;
-
   @property({
     type: 'number',
   })
@@ -57,7 +51,8 @@ export class UsersPredictions extends Entity {
   })
   statusDeleted: number;
 
-
+  @belongsTo(() => Events)
+  eventId: string;
 
   constructor(data?: Partial<UsersPredictions>) {
     super(data); // Initialize the model with the given data
@@ -66,7 +61,7 @@ export class UsersPredictions extends Entity {
 }
 
 export interface UsersPredictionsRelations {
-  // describe navigational properties here
+  event: Events
 }
 
 export type UsersPredictionsWithRelations = UsersPredictions & UsersPredictionsRelations;

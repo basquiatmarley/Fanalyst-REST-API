@@ -23,7 +23,7 @@ export class PoolingApiJob {
     cron.schedule('03 00 * * *', async () => {
       await this.getMatchsEvents();
     }).start();
-    // this.getScores();
+    this.getScores();
     cron.schedule('15 * * * *', async () => {
       await this.getScores();
     }).start();
@@ -246,11 +246,14 @@ export class PoolingApiJob {
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
     const usersPredictionsRepository = await this.context.get<UsersPredictionsRepository>('repositories.UsersPredictionsRepository');
     const now = new Date();
+    var newNow = new Date();
+    newNow.setHours(newNow.getHours() - 2);
+
 
     const events = await eventsRepository.find({
       // "limit": 30,
       "where": {
-        "commenceTime": {lt: now},
+        "commenceTime": {lt: now, gt: newNow},
         "completed": 0
       },
       "include": [

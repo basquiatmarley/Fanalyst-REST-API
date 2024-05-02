@@ -17,6 +17,7 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {Random} from 'random-js';
 import {Events, EventsWithRelations} from '../models';
 import {EventsRepository} from '../repositories';
 
@@ -74,7 +75,31 @@ export class EventsController {
     @param.filter(Events) filter?: Filter<Events>,
   ): Promise<EventsWithRelations[]> {
     const finalFilter = filter ?? {};
-    return this.eventsRepository.find(finalFilter);
+    let randomCreated = false;
+    let limitShowRandom = 0;
+
+    if (finalFilter?.order != null) {
+      if (Array.isArray(finalFilter?.order)) {
+        var orderFilter = finalFilter.order;
+        if (orderFilter[0] == "RAND") {
+          randomCreated = true;
+          limitShowRandom = +orderFilter[1];
+
+          finalFilter.order = [];
+        }
+      }
+    }
+    const datas = await this.eventsRepository.find(finalFilter);
+    if (randomCreated == true && datas != null) {
+      const random = new Random();
+      const shuffled = random.shuffle(datas);
+      // console.log(shuffled);
+      return shuffled.slice(0, limitShowRandom);
+    }
+
+
+
+    return datas;
   }
 
   @patch('/events')
