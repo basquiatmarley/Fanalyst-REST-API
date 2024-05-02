@@ -12,7 +12,7 @@ export class PoolingApiJob {
 
   constructor(context: Context) {
     this.context = context;
-    this.apiKey = 'f7908319c61839eca4f6a86320b70f80';
+    this.apiKey = process.env.API_KEY_SPORT || 'f7908319c61839eca4f6a86320b70f80';
     this.client = axios.create({
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
@@ -20,16 +20,18 @@ export class PoolingApiJob {
     cron.schedule('00 00 * * *', async () => {
       await this.getSports();
     }).start();
-    cron.schedule('03 00 * * *', async () => {
+    this.getMatchsEvents();
+    cron.schedule('1 * * * *', async () => {
       await this.getMatchsEvents();
     }).start();
-    this.getScores();
+
     cron.schedule('15 * * * *', async () => {
       await this.getScores();
     }).start();
   }
 
   private async getMatchsEvents() {
+    console.log("POOLING GET MATCH EVENTS");
     const sportsRepository = await this.context.get<SportsRepository>('repositories.SportsRepository');
     const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
     const clubsRepository = await this.context.get<ClubsRepository>('repositories.ClubsRepository');
@@ -39,6 +41,7 @@ export class PoolingApiJob {
       // "limit": 2,
       "where": {
         // "key": {nlike: "%winner"},
+        // "id": 68,
         "status": 1
       },
       "include": [
@@ -47,12 +50,14 @@ export class PoolingApiJob {
           "required": true,
           "scope": {
             "where": {
-              "status": 1
+              "status": 1,
+              // "id": 13
             }
           }
         }
       ]
     });
+    console.log(sportsList);
     const now = new Date().toISOString();
     if (Array.isArray(sportsList)) {
       for (const sport of sportsList) {

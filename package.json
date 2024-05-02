@@ -41,7 +41,7 @@
     "url": ""
   },
   "author": "Iqbal Ardiansyah <aiqbalsyah@gmail.com>",
-  "license": "",
+  "license": "MIT",
   "files": [
     "README.md",
     "dist",
@@ -66,9 +66,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
     "random-js": "^2.1.0",
-    "sequelize": "^6.37.3",
-    "tslib": "^2.0.0",
-    "winston": "^3.13.0"
+    "tslib": "^2.0.0"
   },
   "devDependencies": {
     "@loopback/build": "^11.0.1",
