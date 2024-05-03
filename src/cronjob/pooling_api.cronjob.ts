@@ -27,7 +27,7 @@ export class PoolingApiJob {
       await this.getMatchsEvents();
     }).start();
 
-    cron.schedule('15 * * * *', async () => {
+    cron.schedule('*/15 * * * *', async () => {
       await this.getScores();
     }).start();
   }
