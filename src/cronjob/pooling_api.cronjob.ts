@@ -17,11 +17,13 @@ export class PoolingApiJob {
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
     });
+    this.getSports();
+    this.getMatchsEvents();
+    this.getScores();
     cron.schedule('00 00 * * *', async () => {
       await this.getSports();
     }).start();
-    this.getMatchsEvents();
-    cron.schedule('1 * * * *', async () => {
+    cron.schedule('30 00 * * *', async () => {
       await this.getMatchsEvents();
     }).start();
 
@@ -57,7 +59,7 @@ export class PoolingApiJob {
         }
       ]
     });
-    console.log(sportsList);
+    // console.log(sportsList);
     const now = new Date().toISOString();
     if (Array.isArray(sportsList)) {
       for (const sport of sportsList) {
