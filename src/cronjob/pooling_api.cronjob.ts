@@ -17,9 +17,9 @@ export class PoolingApiJob {
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
     });
-    this.getSports();
-    this.getMatchsEvents();
-    this.getScores();
+    // this.getSports();
+    // this.getMatchsEvents();
+    // this.getScores();
     cron.schedule('00 00 * * *', async () => {
       await this.getSports();
     }).start();

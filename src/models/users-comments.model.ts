@@ -1,4 +1,5 @@
-import {Entity, model, property} from '@loopback/repository';
+import {Entity, belongsTo, hasMany, model, property} from '@loopback/repository';
+import {Users} from './users.model';
 
 @model({
   name: 'users_comments',
@@ -37,12 +38,6 @@ export class UsersComments extends Entity {
     default: () => new Date(),
   })
   createdAt?: string;
-
-  @property({
-    type: 'number',
-  })
-  createdBy?: number;
-
   @property({
     type: 'date',
   })
@@ -70,7 +65,15 @@ export class UsersComments extends Entity {
   })
   rght?: number;
 
+  @belongsTo(() => Users, {name: 'userCreated'})
+  createdBy: number;
 
+  @hasMany(() => UsersComments, {
+    name: 'usersCommentsDetails',
+    keyTo: 'parentId',
+    keyFrom: 'id',
+  })
+  usersCommentsDetails: UsersComments[];
 
   constructor(data?: Partial<UsersComments>) {
     super(data); // Initialize the model with the given data
@@ -79,6 +82,7 @@ export class UsersComments extends Entity {
 
 export interface UsersCommentsRelations {
   // describe navigational properties here
+  userCreated: Users
 }
 
 export type UsersCommentsWithRelations = UsersComments & UsersCommentsRelations;

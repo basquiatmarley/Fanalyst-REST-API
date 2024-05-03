@@ -1,3 +1,10 @@
+import {authenticate, TokenService} from '@loopback/authentication';
+import {
+  UserRepository as JWTUserRepository,
+  TokenServiceBindings
+} from '@loopback/authentication-jwt';
+
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -7,31 +14,39 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {UsersComments} from '../models';
 import {UsersCommentsRepository} from '../repositories';
-
 export class UsersCommentsController {
   constructor(
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: TokenService,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user: UserProfile,
+    @repository(JWTUserRepository) protected jwtUserRepository: JWTUserRepository,
     @repository(UsersCommentsRepository)
-    public usersCommentsRepository : UsersCommentsRepository,
-  ) {}
+    public usersCommentsRepository: UsersCommentsRepository,
+  ) { }
 
+  @authenticate('jwt')
   @post('/users-comments')
   @response(200, {
     description: 'UsersComments model instance',
     content: {'application/json': {schema: getModelSchemaRef(UsersComments)}},
   })
   async create(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
     @requestBody({
       content: {
         'application/json': {
@@ -44,6 +59,8 @@ export class UsersCommentsController {
     })
     usersComments: Omit<UsersComments, 'id'>,
   ): Promise<UsersComments> {
+    const uId: number = Number(currentUserProfile[securityId]);
+    usersComments.createdBy = uId;
     return this.usersCommentsRepository.create(usersComments);
   }
 
