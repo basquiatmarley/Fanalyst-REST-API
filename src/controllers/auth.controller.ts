@@ -154,6 +154,10 @@ export class AuthController {
     }) userData: Users,
   ): Promise<Users> {
     const uId: number = Number(currentUserProfile[securityId]);
+    const findOneUser = await this.usersRepository.findById(uId);
+    if (!findOneUser) {
+      throw new HttpErrors.NotFound(`User not found`);
+    }
     const emailValidationCheck = await this.usersRepository.findOne({
       where: {
         and: [
@@ -166,9 +170,13 @@ export class AuthController {
       throw new HttpErrors.Conflict(`User with email ${userData.email} already exists`);
     }
 
-
     if (userData.password != undefined && userData.password != '') {
       userData.password = await hash(userData.password, await genSalt());
+    } else {
+      userData.password = findOneUser.password;
+    }
+    if (userData.imageUrl == '') {
+      userData.imageUrl = findOneUser.imageUrl;
     }
     await this.usersRepository.updateById(uId, userData);
     return this.usersRepository.findById(uId);
