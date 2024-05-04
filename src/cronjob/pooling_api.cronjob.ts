@@ -18,9 +18,9 @@ export class PoolingApiJob {
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
     });
-    this.getSports();
+    // this.getSports();c
     // this.getMatchsEvents();
-    // this.getScores();
+    this.getScores();
     cron.schedule('00 00 * * *', async () => {
       await this.getSports();
     }).start();
@@ -38,7 +38,29 @@ export class PoolingApiJob {
     await eventsService.get();
   }
   private async getScores() {
+    // const data = [{
+    //   "id": "011e589a2f2d3a6915bb994823cfab01",
+    //   "sport_key": "basketball_nba",
+    //   "sport_title": "NBA",
+    //   "commence_time": "2022-02-06T03:10:38Z",
+    //   "completed": true,
+    //   "home_team": "Sacramento Kings",
+    //   "away_team": "Oklahoma City Thunder",
+    //   "scores": [
+    //     {
+    //       "name": "Sacramento Kings",
+    //       "score": "113"
+    //     },
+    //     {
+    //       "name": "Oklahoma City Thunder",
+    //       "score": "150"
+    //     }
+    //   ],
+    //   "last_update": "2022-02-06T05:18:19Z"
+    // }];
     const scoresService = new ScoresServices(this.context, this.client, this.apiKey);
+    // await scoresService.pool(Object.values(data)
+    //   , "15e368c19612da85f203a95384a7205d", "");
     await scoresService.get();
   }
 
@@ -46,4 +68,5 @@ export class PoolingApiJob {
     const sportsService = new SportsService(this.context, this.client, this.apiKey);
     await sportsService.get();
   }
+
 }

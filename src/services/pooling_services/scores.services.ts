@@ -83,6 +83,7 @@ class ScoresServices {
   }
 
   async pool(responseData: any, eventID: string, responseMsg: string): Promise<string> {
+
     const scoresRepository = await this.context.get<ScoresRepository>('repositories.ScoresRepository');
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
     const usersPredictionsRepository = await this.context.get<UsersPredictionsRepository>('repositories.UsersPredictionsRepository');
@@ -122,11 +123,11 @@ class ScoresServices {
                 winner: winnerStatus,
                 updatedAt: now.toISOString(),
               });
-              usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
+              await usersPredictionsRepository.updateAll({predictedStatus: 1, updatedAt: now.toISOString()}, {
                 eventId: eventID,
                 predictedTeam: winnerStatus
               });
-              usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
+              await usersPredictionsRepository.updateAll({predictedStatus: 2, updatedAt: now.toISOString()}, {
                 eventId: eventID,
                 predictedTeam: {neq: winnerStatus}
               });
@@ -154,31 +155,36 @@ class ScoresServices {
                     var updateLongestWinStreak = getOneSummary.longestWinStreak;
                     var updateLoseStreak = getOneSummary.loseStreak;
                     var updateLongestLoseStreak = getOneSummary.longestLoseStreak;
-                    var updateIncorrect = getOneSummary.incorrect;
                     var updateCorrect = getOneSummary.correct;
+                    var updateIncorrect = getOneSummary.incorrect;
+                    //CORRECT ANSWER
+                    console.log("PREDICTED STATUS" + predictedStatus)
                     if (predictedStatus == 1) {
+                      console.log("UPDATE WINNER")
                       updateStatusWinStreak = 1;
                       updateStatusLoseStreak = 0;
                       updateCorrect = updateCorrect + 1;
                       if (getOneSummary.statusWinStreak == 1) {
                         updateWinStreak = updateWinStreak + 1;
-                        if (updateWinStreak > updateLongestWinStreak) {
-                          updateLongestWinStreak = updateLongestWinStreak + 1;
-                        }
                       } else {
                         updateWinStreak = 1;
                       }
+                      if (updateWinStreak > updateLongestWinStreak) {
+                        updateLongestWinStreak = updateLongestWinStreak + 1;
+                      }
                     } else {
+                      console.log("UPDATE LOOSE")
                       updateStatusWinStreak = 0;
                       updateStatusLoseStreak = 1;
                       updateIncorrect = updateIncorrect + 1;
                       if (getOneSummary.statusLoseStreak == 1) {
                         updateLoseStreak = updateLoseStreak + 1;
-                        if (updateLoseStreak > updateLongestLoseStreak) {
-                          updateLongestLoseStreak = updateLongestLoseStreak + 1;
-                        }
                       } else {
                         updateLoseStreak = 1;
+                      }
+
+                      if (updateLoseStreak >= updateLongestLoseStreak) {
+                        updateLongestLoseStreak = updateLongestLoseStreak + 1;
                       }
                     }
                     await usersPredSummaryRepo.updateById(getOneSummary.id, {
