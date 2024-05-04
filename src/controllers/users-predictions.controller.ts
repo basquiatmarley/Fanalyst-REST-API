@@ -26,7 +26,7 @@ import {
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {UsersPredictions} from '../models';
-import {UsersPredictionsRepository, UsersPredictionsSummariesRepository} from '../repositories';
+import {UsersPredictionsRepository, UsersPredictionsSummariesAtsRepository, UsersPredictionsSummariesRepository} from '../repositories';
 
 export class UsersPredictionsController {
   constructor(
@@ -39,6 +39,8 @@ export class UsersPredictionsController {
     public usersPredictionsRepository: UsersPredictionsRepository,
     @repository(UsersPredictionsSummariesRepository)
     public usersPredSummaryRepo: UsersPredictionsSummariesRepository,
+    @repository(UsersPredictionsSummariesAtsRepository)
+    public usersPredSummaryAtsRepo: UsersPredictionsSummariesAtsRepository,
   ) { }
 
   @authenticate('jwt')
@@ -82,6 +84,20 @@ export class UsersPredictionsController {
       })
     } else {
       await this.usersPredSummaryRepo.updateById(getOneSummary.id, {countPrediction: getOneSummary.countPrediction + 1});
+    }
+    //ALL TIMES
+    const getOneSummaryAts = await this.usersPredSummaryAtsRepo.findOne({
+      where: {
+        userId: saved.createdBy,
+      }
+    });
+    if (!getOneSummaryAts) {
+      await this.usersPredSummaryAtsRepo.create({
+        userId: saved.createdBy,
+        countPrediction: 1,
+      })
+    } else {
+      await this.usersPredSummaryAtsRepo.updateById(getOneSummaryAts.id, {countPrediction: getOneSummaryAts.countPrediction + 1});
     }
     return saved;
   }

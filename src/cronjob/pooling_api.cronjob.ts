@@ -38,8 +38,10 @@ export class PoolingApiJob {
     await eventsService.get();
   }
   private async getScores() {
-    // const data = [{
-    //   "id": "011e589a2f2d3a6915bb994823cfab01",
+
+    // var eventId = "0706cea87745fa1ed304206524d14164"
+    // var data = [{
+    //   "id": eventId,
     //   "sport_key": "basketball_nba",
     //   "sport_title": "NBA",
     //   "commence_time": "2022-02-06T03:10:38Z",
@@ -49,19 +51,22 @@ export class PoolingApiJob {
     //   "scores": [
     //     {
     //       "name": "Sacramento Kings",
-    //       "score": "113"
+    //       "score": "205"
     //     },
     //     {
     //       "name": "Oklahoma City Thunder",
-    //       "score": "150"
+    //       "score": "203"
     //     }
     //   ],
     //   "last_update": "2022-02-06T05:18:19Z"
     // }];
     const scoresService = new ScoresServices(this.context, this.client, this.apiKey);
-    // await scoresService.pool(Object.values(data)
-    //   , "15e368c19612da85f203a95384a7205d", "");
     await scoresService.get();
+
+    // for (var i = 0; i <= 10; i++) {
+    //   await scoresService.pool(Object.values(data)
+    //     , eventId, "");
+    // }
   }
 
   private async getSports() {

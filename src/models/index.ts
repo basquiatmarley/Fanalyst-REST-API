@@ -10,4 +10,6 @@ export * from './sports.model';
 export * from './users-comments.model';
 export * from './users-predictions.model';
 
+export * from './users-predictions-summaries-all-times.model';
 export * from './users-predictions-summaries.model';
+

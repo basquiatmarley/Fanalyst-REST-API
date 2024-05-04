@@ -1,6 +1,6 @@
 import {Context} from '@loopback/core';
 import {AxiosInstance} from 'axios';
-import {EventsRepository, PoolingRequestsRepository, ScoresRepository, UsersPredictionsRepository, UsersPredictionsSummariesRepository} from '../../repositories';
+import {EventsRepository, PoolingRequestsRepository, ScoresRepository, UsersPredictionsRepository, UsersPredictionsSummariesAtsRepository, UsersPredictionsSummariesRepository} from '../../repositories';
 class ScoresServices {
   private context: Context;
   private apiKey: String;
@@ -88,6 +88,7 @@ class ScoresServices {
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
     const usersPredictionsRepository = await this.context.get<UsersPredictionsRepository>('repositories.UsersPredictionsRepository');
     const usersPredSummaryRepo = await this.context.get<UsersPredictionsSummariesRepository>('repositories.UsersPredictionsSummariesRepository');
+    const usersPredSummaryAtsRepo = await this.context.get<UsersPredictionsSummariesAtsRepository>('repositories.UsersPredictionsSummariesAtsRepository');
     const now = new Date();
     if (Array.isArray(responseData)) {
       for (const dataScore of responseData) {
@@ -158,9 +159,7 @@ class ScoresServices {
                     var updateCorrect = getOneSummary.correct;
                     var updateIncorrect = getOneSummary.incorrect;
                     //CORRECT ANSWER
-                    console.log("PREDICTED STATUS" + predictedStatus)
                     if (predictedStatus == 1) {
-                      console.log("UPDATE WINNER")
                       updateStatusWinStreak = 1;
                       updateStatusLoseStreak = 0;
                       updateCorrect = updateCorrect + 1;
@@ -172,8 +171,8 @@ class ScoresServices {
                       if (updateWinStreak > updateLongestWinStreak) {
                         updateLongestWinStreak = updateLongestWinStreak + 1;
                       }
-                    } else {
-                      console.log("UPDATE LOOSE")
+
+                    } else { //WRONG PREDICTION
                       updateStatusWinStreak = 0;
                       updateStatusLoseStreak = 1;
                       updateIncorrect = updateIncorrect + 1;
@@ -188,6 +187,60 @@ class ScoresServices {
                       }
                     }
                     await usersPredSummaryRepo.updateById(getOneSummary.id, {
+                      winStreak: updateWinStreak,
+                      loseStreak: updateLoseStreak,
+                      longestWinStreak: updateLongestWinStreak,
+                      longestLoseStreak: updateLongestLoseStreak,
+                      correct: updateCorrect,
+                      incorrect: updateIncorrect,
+                      statusLoseStreak: updateStatusLoseStreak,
+                      statusWinStreak: updateStatusWinStreak,
+                    });
+                  }
+
+                  var getOneSummaryAts = await usersPredSummaryAtsRepo.findOne({
+                    where: {
+                      userId: uId,
+                    }
+                  });
+                  if (getOneSummaryAts) {
+                    var updateStatusWinStreak = 1;
+                    var updateStatusLoseStreak = 1;
+                    var updateWinStreak = getOneSummaryAts.winStreak;
+                    var updateLongestWinStreak = getOneSummaryAts.longestWinStreak;
+                    var updateLoseStreak = getOneSummaryAts.loseStreak;
+                    var updateLongestLoseStreak = getOneSummaryAts.longestLoseStreak;
+                    var updateCorrect = getOneSummaryAts.correct;
+                    var updateIncorrect = getOneSummaryAts.incorrect;
+                    //CORRECT ANSWER
+                    if (predictedStatus == 1) {
+                      updateStatusWinStreak = 1;
+                      updateStatusLoseStreak = 0;
+                      updateCorrect = updateCorrect + 1;
+                      if (getOneSummaryAts.statusWinStreak == 1) {
+                        updateWinStreak = updateWinStreak + 1;
+                      } else {
+                        updateWinStreak = 1;
+                      }
+                      if (updateWinStreak > updateLongestWinStreak) {
+                        updateLongestWinStreak = updateLongestWinStreak + 1;
+                      }
+
+                    } else { //WRONG PREDICTION
+                      updateStatusWinStreak = 0;
+                      updateStatusLoseStreak = 1;
+                      updateIncorrect = updateIncorrect + 1;
+                      if (getOneSummaryAts.statusLoseStreak == 1) {
+                        updateLoseStreak = updateLoseStreak + 1;
+                      } else {
+                        updateLoseStreak = 1;
+                      }
+
+                      if (updateLoseStreak >= updateLongestLoseStreak) {
+                        updateLongestLoseStreak = updateLongestLoseStreak + 1;
+                      }
+                    }
+                    await usersPredSummaryAtsRepo.updateById(getOneSummaryAts.id, {
                       winStreak: updateWinStreak,
                       loseStreak: updateLoseStreak,
                       longestWinStreak: updateLongestWinStreak,
