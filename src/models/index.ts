@@ -9,3 +9,5 @@ export * from './sports-groups.model';
 export * from './sports.model';
 export * from './users-comments.model';
 export * from './users-predictions.model';
+
+export * from './users-predictions-summaries.model';

@@ -12,7 +12,7 @@ import path from 'path';
 import {AuthenticationComponent} from '@loopback/authentication';
 import {JWTAuthenticationComponent, UserServiceBindings} from '@loopback/authentication-jwt';
 import multer from 'multer';
-import {MysqldbDataJuglerSource} from './datasources';
+import {MysqldbJuglerDataSource} from './datasources';
 import {FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY} from './keys';
 import {MySequence} from './sequence';
 import {EMAIL_SERVICE, EmailService} from './services/mailers.service';
@@ -65,7 +65,7 @@ export class FanalystApiLbApplication extends BootMixin(
     // Mount jwt component
     this.component(JWTAuthenticationComponent);
     // Bind datasource
-    this.dataSource(MysqldbDataJuglerSource, UserServiceBindings.DATASOURCE_NAME);
+    this.dataSource(MysqldbJuglerDataSource, UserServiceBindings.DATASOURCE_NAME);
 
     this.bind(EMAIL_SERVICE).toClass(EmailService);
 

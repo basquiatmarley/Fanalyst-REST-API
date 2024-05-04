@@ -1,3 +1,4 @@
-export * from './mysqldb.datasource';
-export * from './mysqldb_jugler.datasource';
 
+export * from './mysqldb.datasource';
+
+export * from './mysqldb-jugler.datasource';

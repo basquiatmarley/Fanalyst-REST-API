@@ -27,6 +27,7 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {UsersComments} from '../models';
 import {UsersCommentsRepository} from '../repositories';
+
 export class UsersCommentsController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)

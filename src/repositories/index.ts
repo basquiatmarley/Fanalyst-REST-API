@@ -7,5 +7,6 @@ export * from './sports-groups.repository';
 export * from './sports.repository';
 export * from './user.repository';
 export * from './users-comments.repository';
+export * from './users-predictions-summaries.repository';
 export * from './users-predictions.repository';
 

@@ -1,3 +1,10 @@
+import {authenticate, TokenService} from '@loopback/authentication';
+import {
+  UserRepository as JWTUserRepository,
+  TokenServiceBindings
+} from '@loopback/authentication-jwt';
+
+import {inject} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -17,34 +24,66 @@ import {
   requestBody,
   response,
 } from '@loopback/rest';
+import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {UsersPredictions} from '../models';
-import {UsersPredictionsRepository} from '../repositories';
+import {UsersPredictionsRepository, UsersPredictionsSummariesRepository} from '../repositories';
 
 export class UsersPredictionsController {
   constructor(
+    @inject(TokenServiceBindings.TOKEN_SERVICE)
+    public jwtService: TokenService,
+    @inject(SecurityBindings.USER, {optional: true})
+    public user: UserProfile,
+    @repository(JWTUserRepository) protected jwtUserRepository: JWTUserRepository,
     @repository(UsersPredictionsRepository)
     public usersPredictionsRepository: UsersPredictionsRepository,
+    @repository(UsersPredictionsSummariesRepository)
+    public usersPredSummaryRepo: UsersPredictionsSummariesRepository,
   ) { }
 
+  @authenticate('jwt')
   @post('/users-predictions')
   @response(200, {
     description: 'UsersPredictions model instance',
     content: {'application/json': {schema: getModelSchemaRef(UsersPredictions)}},
   })
   async create(
+    @inject(SecurityBindings.USER) currentUserProfile: UserProfile,
     @requestBody({
       content: {
         'application/json': {
           schema: getModelSchemaRef(UsersPredictions, {
             title: 'NewUsersPredictions',
-            exclude: ['id', 'updatedBy', 'updatedAt', 'statusDeleted'],
+            exclude: ['id', 'updatedBy', 'updatedAt', 'statusDeleted',],
           }),
         },
       },
     })
     usersPredictions: Omit<UsersPredictions, 'id'>,
   ): Promise<UsersPredictions> {
-    return this.usersPredictionsRepository.create(usersPredictions);
+    const uId: number = Number(currentUserProfile[securityId]);
+    usersPredictions.createdBy = uId;
+    const saved = await this.usersPredictionsRepository.create(usersPredictions);
+    const dateNow = new Date();
+
+    const getOneSummary = await this.usersPredSummaryRepo.findOne({
+      where: {
+        userId: saved.createdBy,
+        month: dateNow.getMonth(),
+        year: dateNow.getFullYear(),
+      }
+    });
+    if (!getOneSummary) {
+      await this.usersPredSummaryRepo.create({
+        userId: saved.createdBy,
+        countPrediction: 1,
+        month: dateNow.getMonth(),
+        year: dateNow.getFullYear(),
+      })
+    } else {
+      await this.usersPredSummaryRepo.updateById(getOneSummary.id, {countPrediction: getOneSummary.countPrediction + 1});
+    }
+    return saved;
   }
 
   @get('/users-predictions/count')

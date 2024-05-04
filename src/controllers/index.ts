@@ -23,6 +23,7 @@ export * from './users-comments-details.controller';
 export * from './users-comments-users.controller';
 export * from './users-comments.controller';
 export * from './users-predictions-events.controller';
+export * from './users-predictions-summaries.controller';
 export * from './users-predictions.controller';
 export * from './users.controller';
 
