@@ -13,14 +13,14 @@ export class PoolingApiJob {
 
   constructor(context: Context) {
     this.context = context;
-    this.apiKey = process.env.API_KEY_SPORT || 'f7908319c61839eca4f6a86320b70f80';
+    this.apiKey = process.env.API_KEY_SPORT || '6c651451bae293b8b865527583cc69a4';
     this.client = axios.create({
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
     });
     // this.getSports();
     // this.getMatchsEvents();
-    // this.getScores();
+    this.getScores();
     cron.schedule('00 00 * * *', async () => {
       await this.getSports();
     }).start();

@@ -18,7 +18,7 @@ class ScoresServices {
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
     const now = new Date();
     var newNow = new Date();
-    newNow.setHours(newNow.getHours() - 2);
+    newNow.setHours(newNow.getHours() - 6);
     const events = await eventsRepository.find({
       // "limit": 30,
       "where": {
