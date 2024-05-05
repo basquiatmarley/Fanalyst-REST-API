@@ -67,11 +67,11 @@ export class UsersPredictionsController {
     usersPredictions.createdBy = uId;
     const saved = await this.usersPredictionsRepository.create(usersPredictions);
     const dateNow = new Date();
-
+    const month = dateNow.getMonth() + 1;
     const getOneSummary = await this.usersPredSummaryRepo.findOne({
       where: {
         userId: saved.createdBy,
-        month: dateNow.getMonth(),
+        month: month,
         year: dateNow.getFullYear(),
       }
     });
@@ -79,7 +79,7 @@ export class UsersPredictionsController {
       await this.usersPredSummaryRepo.create({
         userId: saved.createdBy,
         countPrediction: 1,
-        month: dateNow.getMonth(),
+        month: month,
         year: dateNow.getFullYear(),
       })
     } else {

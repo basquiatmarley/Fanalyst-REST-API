@@ -20,7 +20,7 @@ export class PoolingApiJob {
     });
     // this.getSports();c
     // this.getMatchsEvents();
-    this.getScores();
+    // this.getScores();
     cron.schedule('00 00 * * *', async () => {
       await this.getSports();
     }).start();

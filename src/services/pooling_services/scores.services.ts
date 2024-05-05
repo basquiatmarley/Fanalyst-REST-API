@@ -138,14 +138,15 @@ class ScoresServices {
                 }
               });
               if (usersPredictsData) {
-                var dateNow = new Date();
                 for (var userPrediction of usersPredictsData) {
+                  var dateNow = new Date(userPrediction.createdAt!);
+                  var month = dateNow.getMonth() + 1;
                   var predictedStatus = userPrediction.predictedStatus;
                   var uId = userPrediction.createdBy;
                   var getOneSummary = await usersPredSummaryRepo.findOne({
                     where: {
                       userId: uId,
-                      month: dateNow.getMonth(),
+                      month: month,
                       year: dateNow.getFullYear(),
                     }
                   });

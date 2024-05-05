@@ -35,12 +35,12 @@ class SportsService {
         if (Array.isArray(responseData) && responseData.length > 0) {
           for (const dataSport of responseData) {
             const getSportsGroup = await sportsGroupsRepository.findOne({
-              where: {title: dataSport.key.trim()},
+              where: {title: dataSport.group.trim()},
             });
 
             if (!getSportsGroup) {
               await sportsGroupsRepository.create({
-                title: dataSport.key.trim(),
+                title: dataSport.group.trim(),
                 statusHotest: 1,
                 status: 1,
                 imageUrl: "",
