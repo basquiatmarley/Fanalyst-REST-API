@@ -53,4 +53,37 @@ export class UsersPredictionsSummariesController {
     return this.usersPredictionsSummariesRepository.findById(id, filter);
   }
 
+  @get('/users-predictions-summaries/get-position/{id}')
+  @response(200, {
+    description: 'UsersPredictionsSummaries model instance',
+  })
+  async getPosition(
+    @param.path.number('id') id: number,
+  ): Promise<{message: String, position: number, data: UsersPredictionsSummaries | null}> {
+    var sql = "SELECT row_position FROM( SELECT userId, ROW_NUMBER() OVER(ORDER BY longestWinStreak DESC) AS row_position FROM users_predictions_summaries WHERE `month` = ? AND `year` = ?) AS subquery WHERE userId = ? ";
+    var date = new Date();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+
+    const results = await this.usersPredictionsSummariesRepository.executeCustomQuery(sql, [month, year, id]);
+
+    var findByUId = await this.usersPredictionsSummariesRepository.findOne({
+      where: {
+        and: [
+          {"userId": id},
+          {"month": month},
+          {"year": year},
+        ]
+      },
+      include: [
+        {relation: "user", required: true},
+      ]
+    })
+
+    if (results.length === 0) {
+      return {"message": "failed", "position": 0, "data": null};
+    }
+    return {"message": "success", "position": results[0]['row_position'], data: findByUId};
+  }
+
 }

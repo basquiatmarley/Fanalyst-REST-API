@@ -22,4 +22,8 @@ export class UsersPredictionsSummariesAtsRepository extends SequelizeCrudReposit
     this.user = this.createBelongsToAccessorFor('user', usersRepositoryGetter,);
     this.registerInclusionResolver('user', this.user.inclusionResolver);
   }
+  async executeCustomQuery(query: string, params?: any[]): Promise<any> {
+    // `execute` runs raw SQL queries against the data source
+    return this.dataSource.execute(query, params || []);
+  }
 }
