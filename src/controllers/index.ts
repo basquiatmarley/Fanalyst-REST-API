@@ -27,3 +27,4 @@ export * from './users-predictions-summaries.controller';
 export * from './users-predictions.controller';
 export * from './users.controller';
 
+export * from './users-notifications.controller';

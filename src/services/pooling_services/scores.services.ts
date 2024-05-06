@@ -1,6 +1,7 @@
 import {Context} from '@loopback/core';
 import {AxiosInstance} from 'axios';
 import {EventsRepository, PoolingRequestsRepository, ScoresRepository, UsersPredictionsRepository, UsersPredictionsSummariesAtsRepository, UsersPredictionsSummariesRepository} from '../../repositories';
+import {NotificationService} from '../notifications.service';
 class ScoresServices {
   private context: Context;
   private apiKey: String;
@@ -85,6 +86,7 @@ class ScoresServices {
 
   async pool(responseData: any, eventID: string, responseMsg: string): Promise<string> {
 
+    const notificationService = await this.context.get<NotificationService>('services.NotificationService');
     const scoresRepository = await this.context.get<ScoresRepository>('repositories.ScoresRepository');
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
     const usersPredictionsRepository = await this.context.get<UsersPredictionsRepository>('repositories.UsersPredictionsRepository');
@@ -140,6 +142,7 @@ class ScoresServices {
               });
               if (usersPredictsData) {
                 for (var userPrediction of usersPredictsData) {
+                  await notificationService.create(userPrediction.createdBy!, userPrediction.id, userPrediction.predictedStatus + 1);
                   var dateNow = new Date(userPrediction.createdAt!);
                   var month = dateNow.getMonth() + 1;
                   var predictedStatus = userPrediction.predictedStatus;
@@ -187,6 +190,16 @@ class ScoresServices {
                       if (updateLoseStreak >= updateLongestLoseStreak) {
                         updateLongestLoseStreak = updateLongestLoseStreak + 1;
                       }
+                    }
+                    console.log([updateWinStreak, updateWinStreak]);
+                    if (updateWinStreak % 5 == 0 && updateStatusWinStreak == 1) {
+                      console.log("SEND NOTIFI WIN STREAK")
+                      var notifyStreak = await notificationService.create(userPrediction.createdBy!,
+                        userPrediction.id,
+                        4,
+                        `${updateWinStreak}`
+                      );
+                      console.log(notifyStreak);
                     }
                     await usersPredSummaryRepo.updateById(getOneSummary.id, {
                       winStreak: updateWinStreak,

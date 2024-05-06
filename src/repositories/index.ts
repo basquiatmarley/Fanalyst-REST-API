@@ -11,3 +11,4 @@ export * from './users-predictions-summaries-all-times.repository';
 export * from './users-predictions-summaries.repository';
 export * from './users-predictions.repository';
 
+export * from './users-notifications.repository';

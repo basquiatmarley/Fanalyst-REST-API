@@ -106,6 +106,8 @@ export class Events extends Entity {
 export interface EventsRelations {
   sport: Sports,
   sportsGroup: SportsGroups,
+  homeClub: Clubs,
+  awayClub: Clubs,
 }
 
 export type EventsWithRelations = Events & EventsRelations;

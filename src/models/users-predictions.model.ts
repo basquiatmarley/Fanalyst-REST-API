@@ -1,5 +1,5 @@
 import {Entity, belongsTo, model, property} from '@loopback/repository';
-import {Events} from './events.model';
+import {Events, EventsWithRelations} from './events.model';
 
 @model({
   name: 'users_predictions',
@@ -61,7 +61,7 @@ export class UsersPredictions extends Entity {
 }
 
 export interface UsersPredictionsRelations {
-  event: Events
+  event: EventsWithRelations,
 }
 
 export type UsersPredictionsWithRelations = UsersPredictions & UsersPredictionsRelations;

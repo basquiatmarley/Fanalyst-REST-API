@@ -27,6 +27,7 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {UsersComments} from '../models';
 import {UsersCommentsRepository} from '../repositories';
+import {NotificationService} from '../services';
 
 export class UsersCommentsController {
   constructor(
@@ -37,6 +38,7 @@ export class UsersCommentsController {
     @repository(JWTUserRepository) protected jwtUserRepository: JWTUserRepository,
     @repository(UsersCommentsRepository)
     public usersCommentsRepository: UsersCommentsRepository,
+    @inject('services.NotificationService') private notificationService: NotificationService,
   ) { }
 
   @authenticate('jwt')
@@ -62,7 +64,16 @@ export class UsersCommentsController {
   ): Promise<UsersComments> {
     const uId: number = Number(currentUserProfile[securityId]);
     usersComments.createdBy = uId;
-    return this.usersCommentsRepository.create(usersComments);
+    const savedComment = await this.usersCommentsRepository.create(usersComments);
+    if (savedComment.parentId != null) {
+      const findByIdComment = await this.usersCommentsRepository.findById(savedComment.parentId);
+      if (findByIdComment) {
+        if (findByIdComment.createdBy != uId) {
+          await this.notificationService.create(findByIdComment.id, findByIdComment.id, 1);
+        }
+      }
+    }
+    return savedComment;
   }
 
   @get('/users-comments/count')
