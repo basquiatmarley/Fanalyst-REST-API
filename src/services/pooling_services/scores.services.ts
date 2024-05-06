@@ -104,7 +104,7 @@ class ScoresServices {
                 createdAt: now.toISOString(),
                 updatedAt: now.toISOString()
               })
-              responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_teamn}\n`;
+              responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_team}\n`;
             } else {
               await scoresRepository.updateById(findScoreEvent.id, {
                 eventId: eventID,
