@@ -18,12 +18,12 @@ class ScoresServices {
     const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
     const now = new Date();
     var newNow = new Date();
-    newNow.setHours(newNow.getHours() - 6);
-    console.log(now, newNow);
+    newNow.setHours(newNow.getHours() - 24);
+    console.log([now, newNow]);
     const events = await eventsRepository.find({
       // "limit": 30,
       "where": {
-        "commenceTime": {lt: now, gt: newNow},
+        "commenceTime": {"gt": newNow, "lt": now},
         "completed": 0
       },
       "include": [
