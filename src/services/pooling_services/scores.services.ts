@@ -19,6 +19,7 @@ class ScoresServices {
     const now = new Date();
     var newNow = new Date();
     newNow.setHours(newNow.getHours() - 6);
+    console.log(now, newNow);
     const events = await eventsRepository.find({
       // "limit": 30,
       "where": {
