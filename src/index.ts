@@ -8,8 +8,8 @@ export async function main(options: ApplicationConfig = {}) {
   await app.boot();
 
   await app.start();
-
-
+  var date = new Date();
+  console.log(date.toUTCString());
   const url = app.restServer.url;
   console.log(`Server is running at ${url}`);
   console.log(`Try ${url}/ping`);

@@ -35,69 +35,71 @@ export class NotificationService {
       refKey,
       ntype: type,
       message: message,
-      createdAt: new Date().toISOString(),
     });
   }
 
   async getNotificationDetail(notifications: UsersNotifications[]) {
     const notificationsDetails: any[] = [];
-    for (const notification of notifications) {
-      var detail: any;
-      if (notification.ntype == 1) {
-        const getComment = await this.usersCommentsRepository.findById(notification.refKey, {
-          include: [{relation: 'userCreated', required: true}],
-        });
-        detail = {
-          "from": getComment.userCreated!.firstName,
-          "message": getComment.title,
-          "route": `${getComment.id}`
-        };
-      } else if (notification.ntype == 4) {
-        const getPrediction = await this.usersPredictionRepository.findById(notification.refKey, {
-          include: [
-            {
-              relation: 'event',
-              required: true,
-              scope: {
-                include: [
-                  {"relation": "homeClub"},
-                  {"relation": "awayClub"},
-                ]
+    if (notifications.length > 0) {
+      for (const notification of notifications) {
+        var detail: any;
+        if (notification.ntype == 1) {
+          const getComment = await this.usersCommentsRepository.findById(notification.refKey, {
+            include: [{relation: 'userCreated', required: true}],
+          });
+          detail = {
+            "from": getComment.userCreated!.firstName,
+            "message": getComment.title,
+            "route": `${getComment.parentId}`
+          };
+        } else if (notification.ntype == 4) {
+          const getPrediction = await this.usersPredictionRepository.findById(notification.refKey, {
+            include: [
+              {
+                relation: 'event',
+                required: true,
+                scope: {
+                  include: [
+                    {"relation": "homeClub"},
+                    {"relation": "awayClub"},
+                  ]
+                }
               }
-            }
-          ]
-        });
-        const event = getPrediction.event;
-        detail = {
-          "message": notification.message,
-          "desc": event.homeClub.name + " VS " + event.awayClub.name,
-          "route": `${getPrediction.eventId}`
-        }
-      } else {
-        const getPrediction = await this.usersPredictionRepository.findById(notification.refKey, {
-          include: [
-            {
-              relation: 'event',
-              required: true,
-              scope: {
-                include: [
-                  {"relation": "homeClub"},
-                  {"relation": "awayClub"},
-                ]
+            ]
+          });
+          const event = getPrediction.event;
+          detail = {
+            "message": notification.message,
+            "desc": event.homeClub.name + " VS " + event.awayClub.name,
+            "route": `${getPrediction.eventId}`
+          }
+        } else {
+          const getPrediction = await this.usersPredictionRepository.findById(notification.refKey, {
+            include: [
+              {
+                relation: 'event',
+                required: true,
+                scope: {
+                  include: [
+                    {"relation": "homeClub"},
+                    {"relation": "awayClub"},
+                  ]
+                }
               }
-            }
-          ]
-        });
-        const event = getPrediction.event;
-        detail = {
-          "message": getPrediction.predictedStatus == 1 ? "CORRECT" : "INCORRECT",
-          "desc": event.homeClub.name + " VS " + event.awayClub.name,
-          "route": `${getPrediction.eventId}`
+            ]
+          });
+          const event = getPrediction.event;
+          detail = {
+            "message": getPrediction.predictedStatus == 1 ? "CORRECT" : "INCORRECT",
+            "desc": event.homeClub.name + " VS " + event.awayClub.name,
+            "route": `${getPrediction.eventId}`
+          }
         }
-      }
 
-      notificationsDetails.push(detail);
+        notificationsDetails.push(detail);
+      }
     }
+
     return notificationsDetails;
   }
 }

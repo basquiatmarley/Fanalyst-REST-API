@@ -75,13 +75,20 @@ export class UsersNotificationsController {
   })
   async find(
     @param.filter(UsersNotifications) filter?: Filter<UsersNotifications>,
-  ): Promise<{notifications: UsersNotifications[], notificationsDetails: any[]}> {
+  ): Promise<{notifications: UsersNotifications[] | [], notificationsDetails: any[] | []}> {
 
     const notifications = await this.usersNotificationsRepository.find(filter);
-    const notificationsDetails = await this.notificationService.getNotificationDetail(notifications);
+
+    let notificationsDetails = [];
+    if (notifications.length > 0) {
+      notificationsDetails = await this.notificationService.getNotificationDetail(notifications);
+    } else {
+      notificationsDetails = [];
+    }
+
     return {
-      notifications,
-      notificationsDetails,
+      notifications: notifications,
+      notificationsDetails: notificationsDetails,
     };
   }
 

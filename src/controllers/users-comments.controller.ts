@@ -63,13 +63,14 @@ export class UsersCommentsController {
     usersComments: Omit<UsersComments, 'id'>,
   ): Promise<UsersComments> {
     const uId: number = Number(currentUserProfile[securityId]);
+
     usersComments.createdBy = uId;
     const savedComment = await this.usersCommentsRepository.create(usersComments);
     if (savedComment.parentId != null) {
       const findByIdComment = await this.usersCommentsRepository.findById(savedComment.parentId);
       if (findByIdComment) {
         if (findByIdComment.createdBy != uId) {
-          await this.notificationService.create(findByIdComment.id, findByIdComment.id, 1);
+          await this.notificationService.create(findByIdComment.createdBy, savedComment.id, 1);
         }
       }
     }
