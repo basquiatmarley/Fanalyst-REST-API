@@ -64,7 +64,7 @@ class SportsService {
                 updatedAt: now,
               });
 
-              responseMsg += `NEW SAVED SPORT: ${dataSport.title}**`;
+              responseMsg += `**NEW SAVED SPORT: ${dataSport.title}**`;
             } else {
               await sportsRepository.updateById(getSport.id, {
                 sportsGroupId: getSportsGroup?.id,
@@ -74,21 +74,21 @@ class SportsService {
                 updatedAt: now,
               });
 
-              responseMsg += `UPDATE SPORT: ${dataSport.title}**`;
+              responseMsg += `**UPDATE SPORT: ${dataSport.title}**`;
             }
           }
         } else {
-          responseMsg = "RESULT POOLING EMPTY**";
+          responseMsg += "**RESULT POOLING EMPTY**";
         }
       } else {
-        responseMsg = "GET REQUEST ERROR";
+        responseMsg += "**GET REQUEST ERROR**";
       }
     } catch (e) {
       if (e.response) {
-        responseMsg += `Error status: ${e}**`;
-        responseMsg += `Error data: ${e.response.data.message}**`;
+        responseMsg += `**Error status: ${e}**`;
+        responseMsg += `**Error data: ${e.response.data.message}**`;
       } else {
-        responseMsg += `${e}**`;
+        responseMsg += `**${e}**`;
       }
     }
 
