@@ -56,7 +56,7 @@ class ScoresServices {
               var responseData = response.data;
               responseMsg += await this.pool(responseData, event.id, responseMsg);
             } else {
-              responseMsg += "RESULT POOLING EMPTY\n";
+              responseMsg += "RESULT POOLING EMPTY**";
               await eventsRepository.updateById(event.id, {
                 completed: 1,
                 updatedAt: now.toISOString(),
@@ -68,10 +68,10 @@ class ScoresServices {
         } catch (e) {
           // console.log(e.response);
           if (e.response) {
-            responseMsg += "Error status: " + e + '\n';
-            responseMsg += "Error data: " + e.response.data.message + '\n';
+            responseMsg += "Error status: " + e + '**';
+            responseMsg += "Error data: " + e.response.data.message + '**';
           } else {
-            responseMsg += e + '\n';
+            responseMsg += e + '**';
           }
 
           // responseMsg += e.data.message;
@@ -107,7 +107,7 @@ class ScoresServices {
                 createdAt: now.toISOString(),
                 updatedAt: now.toISOString()
               })
-              responseMsg += `SAVED NEW SCORE ${dataScore.home_team} VS ${dataScore.away_team}\n`;
+              responseMsg += `SAVED NEW SCORE ${dataScore.home_team} [${dataScore.scores[0].score}] VS ${dataScore.away_team} [${dataScore.scores[1].score}] **`;
             } else {
               await scoresRepository.updateById(findScoreEvent.id, {
                 eventId: eventID,
@@ -116,12 +116,12 @@ class ScoresServices {
                 completed: dataScore.completed,
                 updatedAt: now.toISOString()
               })
-              responseMsg += `UPDATED SCORE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+              responseMsg += `UPDATED SCORE ${dataScore.home_team} [${dataScore.scores[0].score}] VS ${dataScore.away_team} [${dataScore.scores[1].score}] **`;
             }
             // dataScore.completed = true;
             if (dataScore.completed) {
               const winnerStatus = (dataScore.scores[0].score > dataScore.scores[1].score) ? 1 : ((dataScore.scores[0].score == dataScore.scores[1].score) ? 3 : 2);
-              responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+              responseMsg += `UPDATED MATCH EVENT COMPLETE ${dataScore.home_team} VS ${dataScore.away_team} **`;
               await eventsRepository.updateById(eventID, {
                 completed: 1,
                 winner: winnerStatus,
@@ -268,10 +268,10 @@ class ScoresServices {
                   }
                 }
               }
-              responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} \n `;
+              responseMsg += `UPDATED USER PREDICTIONS EVENT ${dataScore.home_team} VS ${dataScore.away_team} **`;
             }
           } else {
-            responseMsg += "RESULT SCORE EMPTY\n";
+            responseMsg += "RESULT SCORE EMPTY**";
           }
         }
       }

@@ -53,7 +53,7 @@ class EventsServices {
               var responseData = response.data;
               responseMsg += await this.pool(responseData, responseMsg);
             } else {
-              responseMsg = "RESULT POOLING EMPTY\n";
+              responseMsg = "RESULT POOLING EMPTY**";
             }
           } else {
             responseMsg = "GET REQUEST ERROR";
@@ -61,10 +61,10 @@ class EventsServices {
         } catch (e) {
           // console.log(e.response);
           if (e.response) {
-            responseMsg += "Error status: " + e + '\n';
-            responseMsg += "Error data: " + e.response.data.message + '\n';
+            responseMsg += "Error status: " + e + '**';
+            responseMsg += "Error data: " + e.response.data.message + '**';
           } else {
-            responseMsg += e + '\n';
+            responseMsg += e + '**';
           }
 
           // responseMsg += e.data.message;
@@ -102,7 +102,7 @@ class EventsServices {
               createdAt: now,
               updatedAt: now
             });
-            responseMsg += `SAVED NEW CLUB ${eventDataJson.home_team}\n`;
+            responseMsg += `SAVED NEW CLUB ${eventDataJson.home_team}**`;
           }
           let awayClub = await clubsRepository.findOne({where: {name: awayClubName}});
           if (!awayClub) {
@@ -114,7 +114,7 @@ class EventsServices {
               createdAt: now,
               updatedAt: now
             });
-            responseMsg += `SAVED AWAY CLUB ${eventDataJson.away_team}\n`;
+            responseMsg += `SAVED AWAY CLUB ${eventDataJson.away_team}**`;
           }
           const existEventData = await eventsRepository.findOne({where: {id: eventDataJson.id}});
           let newEvent: Events;
@@ -137,7 +137,7 @@ class EventsServices {
               createdAt: now,
               updatedAt: now
             });
-            responseMsg += `SAVED NEW EVENT ${eventDataJson.id}\n`;
+            responseMsg += `SAVED NEW EVENT ${eventDataJson.id}**`;
           } else {
             // Update existing event
             await eventsRepository.updateById(eventDataJson.id, {
@@ -147,7 +147,7 @@ class EventsServices {
               homeClubId: homeClub.id,
               updatedAt: now // Updated only
             });
-            responseMsg += `UPDATE NEW EVENT ${eventDataJson.id}\n`;
+            responseMsg += `UPDATE NEW EVENT ${eventDataJson.id}**`;
             // Find the updated event to assign it to `newEvent`
             newEvent = await eventsRepository.findById(eventDataJson.id);
           }
