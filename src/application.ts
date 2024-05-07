@@ -62,9 +62,7 @@ export class FanalystApiLbApplication extends BootMixin(
       },
     };
     this.component(AuthenticationComponent);
-    // Mount jwt component
     this.component(JWTAuthenticationComponent);
-    // Bind datasource
     this.dataSource(MysqldbJuglerDataSource, UserServiceBindings.DATASOURCE_NAME);
 
     this.bind(EMAIL_SERVICE).toClass(EmailService);
