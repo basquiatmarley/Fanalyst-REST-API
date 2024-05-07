@@ -73,6 +73,7 @@ export class SportsController {
   async find(
     @param.filter(Sports) filter?: Filter<Sports>,
   ): Promise<Sports[]> {
+
     return this.sportsRepository.find(filter);
   }
 

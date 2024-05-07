@@ -3,18 +3,11 @@ import {SequelizeDataSource} from '@loopback/sequelize';
 
 const config = {
   name: 'mysqldb',
-  connector: 'mysql',
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 3306,
-  database: process.env.DB_NAME || 'fanalyst',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'root',
-  connectTimeout: 2000000,
-  sequelizeOptions: {
-    connectTimeout: 20000000,
-    timeout: 20000000,
-  },
-};
+  connector: 'mysql',
+  url: `mysql://${process.env.DB_USER || 'root'}:${process.env.DB_PASSWORD || 'root'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || '3306'}/${process.env.DB_NAME || 'fanalyst'}`,
+  parseJsonColumns: true,
+}
 @lifeCycleObserver('datasource')
 export class MysqldbDataSource extends SequelizeDataSource
   implements LifeCycleObserver {

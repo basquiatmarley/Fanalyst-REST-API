@@ -66,6 +66,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.13",
     "random-js": "^2.1.0",
+    "sequelize": "^6.37.3",
     "tslib": "^2.0.0"
   },
   "devDependencies": {
