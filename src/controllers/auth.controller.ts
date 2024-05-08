@@ -39,9 +39,9 @@ export class AuthController {
   })
   async login(
     @requestBody({
-      content: {'application/json': {schema: {type: 'object', properties: {email: {type: 'string'}, password: {type: 'string'}}}}},
+      content: {'application/json': {schema: {type: 'object', properties: {email: {type: 'string'}, password: {type: 'string'}, generatedPassword: {type: 'boolean'}}}}},
     })
-    request: {email: string, password: string},
+    request: {email: string, password: string, generatedPassword: boolean | false},
   ): Promise<{token: string, userData: Users}> {
 
     const findOneUser = await this.usersRepository.findOne({
@@ -51,10 +51,11 @@ export class AuthController {
     if (!findOneUser) {
       throw new HttpErrors.NotFound('User not found');
     }
-
-    const isPasswordValid = await compare(request.password, findOneUser.password);
-    if (!isPasswordValid) {
-      throw new HttpErrors.NotFound('Password not match');
+    if (!request.generatedPassword) {
+      const isPasswordValid = await compare(request.password, findOneUser.password);
+      if (!isPasswordValid) {
+        throw new HttpErrors.NotFound('Password not match');
+      }
     }
 
     const token = await this.jwtService.generateToken({
