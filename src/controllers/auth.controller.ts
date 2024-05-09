@@ -51,11 +51,15 @@ export class AuthController {
     if (!findOneUser) {
       throw new HttpErrors.NotFound('User not found');
     }
+    let isPasswordValid = true;
     if (!request.generatedPassword) {
-      const isPasswordValid = await compare(request.password, findOneUser.password);
-      if (!isPasswordValid) {
-        throw new HttpErrors.NotFound('Password not match');
-      }
+      isPasswordValid = await compare(request.password, findOneUser.password);
+    } else {
+      isPasswordValid = request.password == findOneUser.password;
+    }
+
+    if (!isPasswordValid) {
+      throw new HttpErrors.NotFound('Password not match');
     }
 
     const token = await this.jwtService.generateToken({

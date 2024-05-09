@@ -124,6 +124,11 @@ export class UsersNotificationsController {
     @param.path.number('id') id: number,
     @param.filter(UsersNotifications, {exclude: 'where'}) filter?: FilterExcludingWhere<UsersNotifications>
   ): Promise<UsersNotifications> {
+    var dataId = "2";
+    var deepLink = "/match-details/3";
+    // const sendNotif = await this.firebaseAdminService.sendFcmNotification("cC1oc4tMSp-ig9S9lz9Mg8:APA91bEcA6fnv5Pxp_1awv4kvfyfyIEc9g_-2s8K8wykxyMeHAjQYwkYfGLeX-DoC4h03I7vQalPfJ04dCDz4rLMTAocRnpJasjs9iCv1HhTC4diL3rpTNdkmJTXIT4uu4JLBgwQCBlx", "MATCH ENDED", "RESULT OF NOTIFICATION", {dataId, deepLink});
+    // console.log(sendNotif);
+
     return this.usersNotificationsRepository.findById(id, filter);
   }
 

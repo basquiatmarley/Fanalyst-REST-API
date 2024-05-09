@@ -12,3 +12,4 @@ export * from './users-predictions-summaries.repository';
 export * from './users-predictions.repository';
 
 export * from './users-notifications.repository';
+export * from './users-fcm-tokens.repository';

@@ -10,7 +10,7 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 
 import {AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthenticationComponent, UserServiceBindings} from '@loopback/authentication-jwt';
+import {JWTAuthenticationComponent, TokenServiceBindings, UserServiceBindings} from '@loopback/authentication-jwt';
 import multer from 'multer';
 import {MysqldbJuglerDataSource} from './datasources';
 import {FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY} from './keys';
@@ -64,6 +64,7 @@ export class FanalystApiLbApplication extends BootMixin(
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);
     this.dataSource(MysqldbJuglerDataSource, UserServiceBindings.DATASOURCE_NAME);
+    this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to('360000');
 
     this.bind(EMAIL_SERVICE).toClass(EmailService);
 

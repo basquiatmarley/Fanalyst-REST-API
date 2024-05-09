@@ -73,3 +73,4 @@ Dockerfile
 
 #.sandbox
 /public/.sandbox
+/config/serviceAccountKey.json

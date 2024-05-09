@@ -28,3 +28,4 @@ export * from './users-predictions.controller';
 export * from './users.controller';
 
 export * from './users-notifications.controller';
+export * from './users-fcm-tokens.controller';
