@@ -25,8 +25,8 @@ export class FirebaseAdminService {
     var deepLink = "";
     var idLink = "";
     if (notification.ntype == 1) {
-      title = detail.from + " Reply Your Comment";
-      message = detail.message;
+      title = "Comment Reply";
+      message = detail.from + " “" + detail.message + "”";
       deepLink = "/match-comments/" + detail.route;
     } else if (notification.ntype == 2 || notification.ntype == 3) {
       title = "Prediction Update's";
@@ -38,7 +38,7 @@ export class FirebaseAdminService {
       deepLink = "/match-detail/" + detail.route;
     }
     return {
-      title, message, additionalData: {deepLink, idLink}
+      additionalData: {title, message, deepLink}
     };
   }
 
@@ -58,33 +58,26 @@ export class FirebaseAdminService {
     console.log(token);
     await this.execute(
       token,
-      messageData.title,
-      messageData.message, messageData.additionalData
+      messageData.additionalData
     );
   }
 
   async execute(
-    token: string[], //array token fcm
-    title: string,
-    body: string,
+    token: string[],
     additionalData: {[key: string]: string} = {},
   ): Promise<void> {
     const message: admin.messaging.MulticastMessage = {
-      notification: {
-        title,
-        body,
-      },
       tokens: token,
       data: additionalData,
     };
-
+    console.log(token);
     try {
       var response = await admin.messaging().sendEachForMulticast(message);
       console.log('Notification sent successfully');
-      console.log(response.responses);
+      // console.log(response.responses);
     } catch (error) {
       console.error('Error sending notification:', error);
-      throw error;
+      // throw error;
     }
   }
 }
