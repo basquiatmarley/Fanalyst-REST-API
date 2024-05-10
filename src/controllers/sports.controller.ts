@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -20,6 +21,7 @@ import {
 import {Sports} from '../models';
 import {SportsRepository} from '../repositories';
 
+@authenticate('jwt')
 export class SportsController {
   constructor(
     @repository(SportsRepository)

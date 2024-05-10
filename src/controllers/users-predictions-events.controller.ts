@@ -1,17 +1,20 @@
+import {authenticate} from '@loopback/authentication';
 import {
   repository,
 } from '@loopback/repository';
 import {
-  param,
   get,
   getModelSchemaRef,
+  param,
 } from '@loopback/rest';
 import {
-  UsersPredictions,
   Events,
+  UsersPredictions,
 } from '../models';
 import {UsersPredictionsRepository} from '../repositories';
 
+
+@authenticate('jwt')
 export class UsersPredictionsEventsController {
   constructor(
     @repository(UsersPredictionsRepository)

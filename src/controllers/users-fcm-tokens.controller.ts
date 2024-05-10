@@ -27,6 +27,8 @@ import {SecurityBindings, UserProfile, securityId} from '@loopback/security';
 import {UsersFcmTokens} from '../models';
 import {UsersFcmTokensRepository} from '../repositories';
 
+
+@authenticate('jwt')
 export class UsersFcmTokensController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)
@@ -115,6 +117,35 @@ export class UsersFcmTokensController {
     };
 
     return await this.usersFcmTokensRepository.create(usersFcmTokensSaved);
+  }
+
+  @authenticate('jwt')
+  @post('/users-fcm-tokens/delete-token')
+  @response(200, {
+    description: 'UsersFcmTokens model instance',
+    content: {'application/json': {schema: getModelSchemaRef(UsersFcmTokens)}},
+  })
+  async deleteToken(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile,
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(UsersFcmTokens, {
+            title: 'Delte Users FcmTokens',
+            exclude: ['id', 'userId'],
+          }),
+        },
+      },
+    })
+    request: {token: string},
+  ): Promise<{message: string}> {
+    const uId: number = Number(currentUserProfile[securityId]);
+    await this.usersFcmTokensRepository.updateAll({
+      status: 2
+    }, {userId: uId, token: request.token});
+
+    return {message: "success"};
   }
 
   @get('/users-fcm-tokens/count')

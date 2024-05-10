@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {
   Count,
@@ -22,6 +23,8 @@ import {UsersNotifications} from '../models';
 import {UsersNotificationsRepository} from '../repositories';
 import {NotificationService} from '../services';
 
+
+@authenticate('jwt')
 export class UsersNotificationsController {
   constructor(
     @repository(UsersNotificationsRepository)

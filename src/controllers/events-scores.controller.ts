@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -21,6 +22,7 @@ import {
 } from '../models';
 import {EventsRepository} from '../repositories';
 
+@authenticate('jwt')
 export class EventsScoresController {
   constructor(
     @repository(EventsRepository) protected eventsRepository: EventsRepository,

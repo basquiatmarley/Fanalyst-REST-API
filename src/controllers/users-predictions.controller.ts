@@ -28,6 +28,7 @@ import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {UsersPredictions} from '../models';
 import {UsersPredictionsRepository, UsersPredictionsSummariesAtsRepository, UsersPredictionsSummariesRepository} from '../repositories';
 
+@authenticate('jwt')
 export class UsersPredictionsController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)

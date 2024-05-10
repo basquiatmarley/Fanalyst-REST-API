@@ -29,6 +29,8 @@ import {UsersComments} from '../models';
 import {UsersCommentsRepository} from '../repositories';
 import {NotificationService} from '../services';
 
+
+@authenticate('jwt')
 export class UsersCommentsController {
   constructor(
     @inject(TokenServiceBindings.TOKEN_SERVICE)

@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Filter,
   FilterExcludingWhere,
@@ -12,6 +13,8 @@ import {
 import {UsersPredictionsSummariesAts} from '../models';
 import {UsersPredictionsSummariesAtsRepository} from '../repositories';
 
+
+@authenticate('jwt')
 export class UsersPredictionsSummariesAtsController {
   constructor(
     @repository(UsersPredictionsSummariesAtsRepository)

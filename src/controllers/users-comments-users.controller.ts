@@ -1,17 +1,20 @@
+import {authenticate} from '@loopback/authentication';
 import {
   repository,
 } from '@loopback/repository';
 import {
-  param,
   get,
   getModelSchemaRef,
+  param,
 } from '@loopback/rest';
 import {
-  UsersComments,
   Users,
+  UsersComments,
 } from '../models';
 import {UsersCommentsRepository} from '../repositories';
 
+
+@authenticate('jwt')
 export class UsersCommentsUsersController {
   constructor(
     @repository(UsersCommentsRepository)

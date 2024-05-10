@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -20,6 +21,7 @@ import {
 import {PoolingRequests} from '../models';
 import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, ScoresRepository, SportsGroupsRepository, SportsRepository} from '../repositories';
 
+@authenticate('jwt')
 export class PoolingRequestsController {
   constructor(
     @repository(PoolingRequestsRepository) public poolingRequestsRepository: PoolingRequestsRepository,

@@ -1,10 +1,11 @@
+import {authenticate} from '@loopback/authentication';
 import {
   repository,
 } from '@loopback/repository';
 import {
-  param,
   get,
   getModelSchemaRef,
+  param,
 } from '@loopback/rest';
 import {
   Sports,
@@ -12,6 +13,8 @@ import {
 } from '../models';
 import {SportsRepository} from '../repositories';
 
+
+@authenticate('jwt')
 export class SportsSportsGroupsController {
   constructor(
     @repository(SportsRepository)

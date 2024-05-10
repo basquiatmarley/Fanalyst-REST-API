@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -7,24 +8,25 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
 import {Odds} from '../models';
 import {OddsRepository} from '../repositories';
 
+@authenticate('jwt')
 export class OddsController {
   constructor(
     @repository(OddsRepository)
-    public oddsRepository : OddsRepository,
-  ) {}
+    public oddsRepository: OddsRepository,
+  ) { }
 
   @post('/odds')
   @response(200, {

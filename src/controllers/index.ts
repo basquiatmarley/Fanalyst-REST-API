@@ -29,3 +29,4 @@ export * from './users.controller';
 
 export * from './users-notifications.controller';
 export * from './users-fcm-tokens.controller';
+export * from './banners.controller';

@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -21,6 +22,7 @@ import {Random} from 'random-js';
 import {Events, EventsWithRelations} from '../models';
 import {EventsRepository} from '../repositories';
 
+@authenticate('jwt')
 export class EventsController {
   constructor(
     @repository(EventsRepository)

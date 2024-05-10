@@ -6,6 +6,7 @@ import {
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import {
+  del,
   get,
   getModelSchemaRef,
   HttpErrors,
@@ -45,7 +46,9 @@ export class AuthController {
   ): Promise<{token: string, userData: Users}> {
 
     const findOneUser = await this.usersRepository.findOne({
-      where: {email: request.email},
+      where: {
+        and: [{email: request.email}, {status: 1},],
+      }
     });
 
     if (!findOneUser) {
@@ -200,7 +203,11 @@ export class AuthController {
   ): Promise<{"message": string}> {
     const email = request.email;
 
-    const existingUser = await this.usersRepository.findOne({where: {email}});
+    const existingUser = await this.usersRepository.findOne({
+      where: {
+        and: [{email: request.email}, {status: 1},],
+      }
+    });
 
     if (!existingUser) {
       throw new HttpErrors.NotFound(`User with email ${email} does not exist.`);
@@ -252,6 +259,25 @@ export class AuthController {
     existingUser.otp = "";
     existingUser.otpExpired = null;
     existingUser.password = await hash(request.password, await genSalt());
+    await this.usersRepository.updateById(existingUser.id, existingUser);
+
+    return {message: "SUCCESS"};
+  }
+
+  @authenticate('jwt')
+  @del('/auth/delete-account')
+  @response(200, {
+    description: 'delete account',
+    content: {'application/json': {schema: {type: 'object', properties: {message: {type: 'string'}}}}},
+  })
+  async deleteAccount(
+    @inject(SecurityBindings.USER)
+    currentUserProfile: UserProfile): Promise<{"message": string}> {
+    const uId: number = Number(currentUserProfile[securityId]);
+    const existingUser = await this.usersRepository.findById(uId);
+
+    existingUser.status = 0;
+    existingUser.statusDeleted = 1;
     await this.usersRepository.updateById(existingUser.id, existingUser);
 
     return {message: "SUCCESS"};

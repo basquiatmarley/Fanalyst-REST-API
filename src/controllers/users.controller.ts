@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
@@ -22,6 +23,8 @@ import {genSalt, hash} from 'bcryptjs';
 import {Users} from '../models';
 import {UsersRepository} from '../repositories';
 
+
+@authenticate('jwt')
 export class UsersController {
   constructor(
     @repository(UsersRepository)

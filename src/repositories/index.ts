@@ -13,3 +13,4 @@ export * from './users-predictions.repository';
 
 export * from './users-notifications.repository';
 export * from './users-fcm-tokens.repository';
+export * from './banner.repository';
