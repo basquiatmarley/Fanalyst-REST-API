@@ -1,3 +1,4 @@
+import {authenticate} from '@loopback/authentication';
 import {inject} from '@loopback/core';
 import {
   HttpErrors,
@@ -14,6 +15,7 @@ import {FileUploadHandler} from '../types';
 /**
  * A controller to handle file uploads using multipart/form-data media type
  */
+@authenticate('jwt')
 export class FileManagerController {
   /**
    * Constructor
