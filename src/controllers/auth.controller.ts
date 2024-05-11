@@ -16,11 +16,11 @@ import {
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {compare, genSalt, hash} from 'bcryptjs';
-import {randomBytes} from 'crypto';
-import {Users} from '../models';
+import {randomBytes, randomUUID} from 'crypto';
+import * as admin from 'firebase-admin';
+import {Users, UsersRelations} from '../models';
 import {UsersRepository} from '../repositories';
 import {EMAIL_SERVICE, EmailService} from '../services/mailers.service';
-
 
 export class AuthController {
   constructor(
@@ -72,9 +72,81 @@ export class AuthController {
     });
 
     return {token: token, userData: findOneUser};
-
-
   }
+
+  @post('/auth/login-with-third')
+  @response(200, {
+    description: 'Password reset',
+    content: {'application/json': {schema: {type: 'object', properties: {token: {type: 'string'}, userData: {type: 'object'}}}}},
+  })
+  async loginWith(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object', properties: {
+              email: {type: 'string'},
+              password: {type: 'string'},
+              idToken: {type: 'string'},
+              type: {type: 'string'},
+              imageUrl: {type: 'string'},
+            }
+          }
+        }
+      },
+    })
+    request: {email: string, name: string, imageUrl: string | '', idToken: string, type: string},
+  ): Promise<{token: string, userData: Users & UsersRelations}> {
+
+    var validateToken = true;
+    if (request.type == "GOOGLE") {
+      console.log(request.idToken);
+      try {
+        var getVerify = await admin.auth().verifyIdToken(request.idToken.trim());
+        console.log(getVerify);
+
+      } catch (e) {
+        console.log(e);
+      }
+
+      //NEED VERIFY ID TOKEN
+    }
+
+    if (!validateToken) {
+      throw new HttpErrors.NotFound('Invalid token.');
+    }
+
+    var findOneUser = await this.usersRepository.findOne({
+      where: {
+        and: [{email: request.email}, {status: 1},],
+      }
+    });
+    var nameSplt = request.name.split(" ");
+    var lastName = (nameSplt[1] != undefined) ? nameSplt[1] : '';
+    if (!findOneUser) {
+      var password = await hash(request.email + randomUUID + request.name, await genSalt());
+      var newUser = {
+        firstName: nameSplt[0],
+        lastName: lastName,
+        password: password,
+        email: request.email,
+        status: 1,
+        imageUrl: request.imageUrl,
+        role: 'member',
+        otp: '',
+        statusDeleted: 0,
+      };
+      findOneUser = await this.usersRepository.create(newUser);
+    }
+    const token = await this.jwtService.generateToken({
+      email: findOneUser.email,
+      name: `${findOneUser.firstName}-${findOneUser.lastName}`,
+      [securityId]: findOneUser.id.toString(),
+    });
+
+    return {token: token, userData: findOneUser};
+  }
+
 
   @authenticate('jwt')
   @get('/auth/verify', {

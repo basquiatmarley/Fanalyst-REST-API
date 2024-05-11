@@ -11,12 +11,12 @@ import path from 'path';
 
 import {AuthenticationComponent} from '@loopback/authentication';
 import {JWTAuthenticationComponent, TokenServiceBindings, UserServiceBindings} from '@loopback/authentication-jwt';
+import * as admin from 'firebase-admin';
 import multer from 'multer';
 import {MysqldbJuglerDataSource} from './datasources';
 import {FILE_UPLOAD_SERVICE, STORAGE_DIRECTORY} from './keys';
 import {MySequence} from './sequence';
 import {EMAIL_SERVICE, EmailService} from './services/mailers.service';
-
 export {ApplicationConfig};
 
 export class FanalystApiLbApplication extends BootMixin(
@@ -37,7 +37,10 @@ export class FanalystApiLbApplication extends BootMixin(
     });
     this.component(RestExplorerComponent);
 
-
+    const serviceAccountPath = path.resolve(__dirname, '../src/config/serviceAccountKey.json');
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccountPath),
+    });
     // Configure file upload with multer options
     this.configureFileUpload(options.fileStorageDirectory);
 

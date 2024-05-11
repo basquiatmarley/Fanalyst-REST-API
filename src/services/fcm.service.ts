@@ -1,7 +1,6 @@
 import {injectable} from '@loopback/core';
 import {repository} from '@loopback/repository';
 import * as admin from 'firebase-admin';
-import * as path from 'path';
 import {UsersNotifications} from '../models';
 import {UsersFcmTokensRepository} from '../repositories';
 
@@ -11,11 +10,8 @@ export class FirebaseAdminService {
     @repository(UsersFcmTokensRepository)
     private usersFcmRepo: UsersFcmTokensRepository,
   ) {
-    const serviceAccountPath = path.resolve(__dirname, '../../src/config/serviceAccountKey.json');
     if (admin.apps.length === 0) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccountPath),
-      });
+
     }
   }
 
