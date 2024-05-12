@@ -31,12 +31,12 @@ class ScoresServices {
     );
     const now = new Date();
     var newNow = new Date();
-    newNow.setHours(newNow.getHours() - 24);
+    newNow.setHours(newNow.getHours() - 10);
     console.log([now, newNow]);
     const events = await eventsRepository.find({
       // "limit": 30,
       where: {
-        commenceTime: {gt: newNow, lt: now},
+        commenceTime: {lt: now},
         completed: 0,
       },
       include: [
