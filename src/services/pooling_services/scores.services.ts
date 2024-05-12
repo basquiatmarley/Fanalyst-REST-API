@@ -31,7 +31,7 @@ class ScoresServices {
     );
     const now = new Date();
     var newNow = new Date();
-    newNow.setHours(newNow.getHours() - 10);
+    newNow.setHours(newNow.getHours() - 24);
     console.log([now, newNow]);
     const events = await eventsRepository.find({
       // "limit": 30,
@@ -55,7 +55,7 @@ class ScoresServices {
     if (Array.isArray(events)) {
       for (const event of events) {
         var url = `sports/${event.sport.key}/scores?apiKey=${this.apiKey}&daysFrom=2&dateFormat=iso&eventIds=${event.id}`;
-        console.log(url);
+
         var poolingDataSaved = await poolingRequestRepository.create({
           urlRequest: url,
           type: 'scores',
