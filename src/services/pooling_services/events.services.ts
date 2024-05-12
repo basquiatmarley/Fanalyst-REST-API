@@ -1,7 +1,13 @@
 import {Context} from '@loopback/core';
 import {AxiosInstance} from 'axios';
 import {Events} from '../../models';
-import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, SportsRepository} from '../../repositories';
+import {
+  ClubsRepository,
+  EventsRepository,
+  OddsRepository,
+  PoolingRequestsRepository,
+  SportsRepository,
+} from '../../repositories';
 class EventsServices {
   private context: Context;
   private apiKey: String;
@@ -14,26 +20,31 @@ class EventsServices {
   }
 
   async get(): Promise<void> {
-    console.log("POOLING GET MATCH EVENTS");
-    const sportsRepository = await this.context.get<SportsRepository>('repositories.SportsRepository');
-    const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
+    console.log('POOLING GET MATCH EVENTS');
+    const sportsRepository = await this.context.get<SportsRepository>(
+      'repositories.SportsRepository',
+    );
+    const poolingRequestRepository =
+      await this.context.get<PoolingRequestsRepository>(
+        'repositories.PoolingRequestsRepository',
+      );
     const sportsList = await sportsRepository.find({
-      "where": {
-        "key": {nlike: "%winner"},
-        "status": 1
+      where: {
+        key: {nlike: '%winner'},
+        status: 1,
       },
-      "include": [
+      include: [
         {
-          "relation": "sportsGroup",
-          "required": true,
-          "scope": {
-            "where": {
-              "status": 1,
+          relation: 'sportsGroup',
+          required: true,
+          scope: {
+            where: {
+              status: 1,
               // "id": 13
-            }
-          }
-        }
-      ]
+            },
+          },
+        },
+      ],
     });
     // console.log(sportsList);
 
@@ -43,9 +54,9 @@ class EventsServices {
 
         var poolingDataSaved = await poolingRequestRepository.create({
           urlRequest: url,
-          type: "events",
+          type: 'events',
         });
-        var responseMsg = "";
+        var responseMsg = '';
         try {
           var response = await this.client.get(url);
           if (response.status == 200) {
@@ -53,25 +64,26 @@ class EventsServices {
               var responseData = response.data;
               responseMsg += await this.pool(responseData, responseMsg);
             } else {
-              responseMsg += "**RESULT POOLING EMPTY**";
+              responseMsg += '**RESULT POOLING EMPTY**';
             }
           } else {
-            responseMsg += "**GET REQUEST ERROR**";
+            responseMsg += '**GET REQUEST ERROR**';
           }
         } catch (e) {
           // console.log(e.response);
           if (e.response) {
-            responseMsg += "**Error status: " + e + '**';
-            responseMsg += "**Error data: " + e.response.data.message + '**';
+            responseMsg += '**Error status: ' + e + '**';
+            responseMsg += '**Error data: ' + e.response.data.message + '**';
           } else {
             responseMsg += e + '**';
           }
 
           // responseMsg += e.data.message;
-
         }
 
-        await poolingRequestRepository.updateById(poolingDataSaved.id, {response: responseMsg});
+        await poolingRequestRepository.updateById(poolingDataSaved.id, {
+          response: responseMsg,
+        });
       }
     } else {
       console.error('sportsList is not an array or is empty.');
@@ -79,44 +91,61 @@ class EventsServices {
   }
 
   async pool(responseData: any, responseMsg: string): Promise<string> {
-    const sportsRepository = await this.context.get<SportsRepository>('repositories.SportsRepository');
-    const eventsRepository = await this.context.get<EventsRepository>('repositories.EventsRepository');
-    const clubsRepository = await this.context.get<ClubsRepository>('repositories.ClubsRepository');
-    const oddsRepository = await this.context.get<OddsRepository>('repositories.OddsRepository');
+    const sportsRepository = await this.context.get<SportsRepository>(
+      'repositories.SportsRepository',
+    );
+    const eventsRepository = await this.context.get<EventsRepository>(
+      'repositories.EventsRepository',
+    );
+    const clubsRepository = await this.context.get<ClubsRepository>(
+      'repositories.ClubsRepository',
+    );
+    const oddsRepository = await this.context.get<OddsRepository>(
+      'repositories.OddsRepository',
+    );
 
     const now = new Date().toISOString();
     if (Array.isArray(responseData)) {
       for (const eventDataJson of responseData) {
         const filter = {where: {key: eventDataJson.sport_key.trim()}};
         const getSport = await sportsRepository.findOne(filter);
-        if (eventDataJson.home_team != null && eventDataJson.away_team != null) {
+        if (
+          eventDataJson.home_team != null &&
+          eventDataJson.away_team != null
+        ) {
           let homeClubName = eventDataJson.home_team.trim();
           let awayClubName = eventDataJson.away_team.trim();
-          let homeClub = await clubsRepository.findOne({where: {name: homeClubName}});
+          let homeClub = await clubsRepository.findOne({
+            where: {name: homeClubName},
+          });
           if (!homeClub) {
             homeClub = await clubsRepository.create({
               sportsGroupId: getSport?.sportsGroupId,
               name: eventDataJson.home_team.trim(),
               status: 1,
-              imageUrl: "",
+              imageUrl: '',
               createdAt: now,
-              updatedAt: now
+              updatedAt: now,
             });
             responseMsg += `**SAVED NEW CLUB ${eventDataJson.home_team}**`;
           }
-          let awayClub = await clubsRepository.findOne({where: {name: awayClubName}});
+          let awayClub = await clubsRepository.findOne({
+            where: {name: awayClubName},
+          });
           if (!awayClub) {
             awayClub = await clubsRepository.create({
               sportsGroupId: getSport?.sportsGroupId,
               name: eventDataJson.away_team.trim(),
               status: 1,
-              imageUrl: "",
+              imageUrl: '',
               createdAt: now,
-              updatedAt: now
+              updatedAt: now,
             });
             responseMsg += `**SAVED AWAY CLUB ${eventDataJson.away_team}**`;
           }
-          const existEventData = await eventsRepository.findOne({where: {id: eventDataJson.id}});
+          const existEventData = await eventsRepository.findOne({
+            where: {id: eventDataJson.id},
+          });
           let newEvent: Events;
           const commenceTime = eventDataJson.commence_time;
 
@@ -135,7 +164,7 @@ class EventsServices {
               homeClubId: homeClub.id,
               completed: 0,
               createdAt: now,
-              updatedAt: now
+              updatedAt: now,
             });
             responseMsg += `**SAVED NEW EVENT ${eventDataJson.id}**`;
           } else {
@@ -145,7 +174,7 @@ class EventsServices {
               commenceTime: formatedCommencTIme,
               awayClubId: awayClub.id,
               homeClubId: homeClub.id,
-              updatedAt: now // Updated only
+              updatedAt: now, // Updated only
             });
             responseMsg += `**UPDATE NEW EVENT ${eventDataJson.id}**`;
             // Find the updated event to assign it to `newEvent`
@@ -190,7 +219,6 @@ class EventsServices {
                         },
                       });
 
-
                       // Check if odds already exist or if they need to be created/updated
                       if (!findTheOdds) {
                         // No odds found; create a new one
@@ -226,9 +254,8 @@ class EventsServices {
             }
           }
         } else {
-          responseMsg += "**EVENT SKIP - CLUB TEAM NOT ADDED YET**";
+          responseMsg += '**EVENT SKIP - CLUB TEAM NOT ADDED YET**';
         }
-
       }
     }
 
@@ -236,4 +263,4 @@ class EventsServices {
   }
 }
 
-export default EventsServices
+export default EventsServices;

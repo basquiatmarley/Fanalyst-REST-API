@@ -5,7 +5,6 @@ import {Events, EventsWithRelations} from './events.model';
   name: 'users_predictions',
 })
 export class UsersPredictions extends Entity {
-
   @property({
     type: 'number',
     id: true,
@@ -19,7 +18,6 @@ export class UsersPredictions extends Entity {
 
   @property({
     type: 'number', // Status of the prediction
-
   })
   predictedStatus: number;
 
@@ -31,7 +29,6 @@ export class UsersPredictions extends Entity {
 
   @property({
     type: 'number', // ID of the person who created the record
-
   })
   createdBy?: number; // Optional field for creator's ID
 
@@ -57,11 +54,11 @@ export class UsersPredictions extends Entity {
   constructor(data?: Partial<UsersPredictions>) {
     super(data); // Initialize the model with the given data
   }
-
 }
 
 export interface UsersPredictionsRelations {
-  event: EventsWithRelations,
+  event: EventsWithRelations;
 }
 
-export type UsersPredictionsWithRelations = UsersPredictions & UsersPredictionsRelations;
+export type UsersPredictionsWithRelations = UsersPredictions &
+  UsersPredictionsRelations;

@@ -10,7 +10,11 @@ import {ServiceMixin} from '@loopback/service-proxy';
 import path from 'path';
 
 import {AuthenticationComponent} from '@loopback/authentication';
-import {JWTAuthenticationComponent, TokenServiceBindings, UserServiceBindings} from '@loopback/authentication-jwt';
+import {
+  JWTAuthenticationComponent,
+  TokenServiceBindings,
+  UserServiceBindings,
+} from '@loopback/authentication-jwt';
 import * as admin from 'firebase-admin';
 import multer from 'multer';
 import {MysqldbJuglerDataSource} from './datasources';
@@ -37,7 +41,10 @@ export class FanalystApiLbApplication extends BootMixin(
     });
     this.component(RestExplorerComponent);
 
-    const serviceAccountPath = path.resolve(__dirname, '../src/config/serviceAccountKey.json');
+    const serviceAccountPath = path.resolve(
+      __dirname,
+      '../src/config/serviceAccountKey.json',
+    );
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccountPath),
     });
@@ -66,12 +73,13 @@ export class FanalystApiLbApplication extends BootMixin(
     };
     this.component(AuthenticationComponent);
     this.component(JWTAuthenticationComponent);
-    this.dataSource(MysqldbJuglerDataSource, UserServiceBindings.DATASOURCE_NAME);
+    this.dataSource(
+      MysqldbJuglerDataSource,
+      UserServiceBindings.DATASOURCE_NAME,
+    );
     this.bind(TokenServiceBindings.TOKEN_EXPIRES_IN).to('360000');
 
     this.bind(EMAIL_SERVICE).toClass(EmailService);
-
-
   }
   protected configureFileUpload(destination?: string) {
     // Upload files to `dist/.sandbox` by default
@@ -84,9 +92,11 @@ export class FanalystApiLbApplication extends BootMixin(
         filename: (req, file, cb) => {
           const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
           const extension = path.extname(file.originalname); // Preserve the file extension
-          const nameWithoutExtension = path.basename(file.originalname, extension);
+          const nameWithoutExtension = path.basename(
+            file.originalname,
+            extension,
+          );
           cb(null, `${nameWithoutExtension}-${uniqueSuffix}${extension}`);
-
         },
       }),
     };

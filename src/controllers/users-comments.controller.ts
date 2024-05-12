@@ -1,7 +1,7 @@
 import {authenticate, TokenService} from '@loopback/authentication';
 import {
   UserRepository as JWTUserRepository,
-  TokenServiceBindings
+  TokenServiceBindings,
 } from '@loopback/authentication-jwt';
 
 import {inject} from '@loopback/core';
@@ -29,7 +29,6 @@ import {UsersComments} from '../models';
 import {UsersCommentsRepository} from '../repositories';
 import {NotificationService} from '../services';
 
-
 @authenticate('jwt')
 export class UsersCommentsController {
   constructor(
@@ -37,11 +36,13 @@ export class UsersCommentsController {
     public jwtService: TokenService,
     @inject(SecurityBindings.USER, {optional: true})
     public user: UserProfile,
-    @repository(JWTUserRepository) protected jwtUserRepository: JWTUserRepository,
+    @repository(JWTUserRepository)
+    protected jwtUserRepository: JWTUserRepository,
     @repository(UsersCommentsRepository)
     public usersCommentsRepository: UsersCommentsRepository,
-    @inject('services.NotificationService') private notificationService: NotificationService,
-  ) { }
+    @inject('services.NotificationService')
+    private notificationService: NotificationService,
+  ) {}
 
   @authenticate('jwt')
   @post('/users-comments')
@@ -67,12 +68,19 @@ export class UsersCommentsController {
     const uId: number = Number(currentUserProfile[securityId]);
 
     usersComments.createdBy = uId;
-    const savedComment = await this.usersCommentsRepository.create(usersComments);
+    const savedComment =
+      await this.usersCommentsRepository.create(usersComments);
     if (savedComment.parentId != null) {
-      const findByIdComment = await this.usersCommentsRepository.findById(savedComment.parentId);
+      const findByIdComment = await this.usersCommentsRepository.findById(
+        savedComment.parentId,
+      );
       if (findByIdComment) {
         if (findByIdComment.createdBy != uId) {
-          await this.notificationService.create(findByIdComment.createdBy, savedComment.id, 1);
+          await this.notificationService.create(
+            findByIdComment.createdBy,
+            savedComment.id,
+            1,
+          );
         }
       }
     }
@@ -138,7 +146,8 @@ export class UsersCommentsController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(UsersComments, {exclude: 'where'}) filter?: FilterExcludingWhere<UsersComments>
+    @param.filter(UsersComments, {exclude: 'where'})
+    filter?: FilterExcludingWhere<UsersComments>,
   ): Promise<UsersComments> {
     return this.usersCommentsRepository.findById(id, filter);
   }

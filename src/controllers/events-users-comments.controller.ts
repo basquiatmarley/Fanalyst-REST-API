@@ -16,17 +16,14 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  Events,
-  UsersComments,
-} from '../models';
+import {Events, UsersComments} from '../models';
 import {EventsRepository} from '../repositories';
 
 @authenticate('jwt')
 export class EventsUsersCommentsController {
   constructor(
     @repository(EventsRepository) protected eventsRepository: EventsRepository,
-  ) { }
+  ) {}
 
   @get('/events/{id}/users-comments', {
     responses: {
@@ -51,7 +48,9 @@ export class EventsUsersCommentsController {
     responses: {
       '200': {
         description: 'Events model instance',
-        content: {'application/json': {schema: getModelSchemaRef(UsersComments)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(UsersComments)},
+        },
       },
     },
   })
@@ -63,11 +62,12 @@ export class EventsUsersCommentsController {
           schema: getModelSchemaRef(UsersComments, {
             title: 'NewUsersCommentsInEvents',
             exclude: ['id'],
-            optional: ['eventId']
+            optional: ['eventId'],
           }),
         },
       },
-    }) usersComments: Omit<UsersComments, 'id'>,
+    })
+    usersComments: Omit<UsersComments, 'id'>,
   ): Promise<UsersComments> {
     return this.eventsRepository.usersComments(id).create(usersComments);
   }
@@ -90,7 +90,8 @@ export class EventsUsersCommentsController {
       },
     })
     usersComments: Partial<UsersComments>,
-    @param.query.object('where', getWhereSchemaFor(UsersComments)) where?: Where<UsersComments>,
+    @param.query.object('where', getWhereSchemaFor(UsersComments))
+    where?: Where<UsersComments>,
   ): Promise<Count> {
     return this.eventsRepository.usersComments(id).patch(usersComments, where);
   }
@@ -105,7 +106,8 @@ export class EventsUsersCommentsController {
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(UsersComments)) where?: Where<UsersComments>,
+    @param.query.object('where', getWhereSchemaFor(UsersComments))
+    where?: Where<UsersComments>,
   ): Promise<Count> {
     return this.eventsRepository.usersComments(id).delete(where);
   }

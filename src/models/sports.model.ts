@@ -1,4 +1,10 @@
-import {Entity, belongsTo, model, property, hasMany} from '@loopback/repository';
+import {
+  Entity,
+  belongsTo,
+  model,
+  property,
+  hasMany,
+} from '@loopback/repository';
 import {SportsGroups} from './sports-groups.model';
 import {Events} from './events.model';
 
@@ -6,7 +12,6 @@ import {Events} from './events.model';
   name: 'sports',
 })
 export class Sports extends Entity {
-
   @property({
     type: 'number',
     id: true,
@@ -22,25 +27,21 @@ export class Sports extends Entity {
 
   @property({
     type: 'string', // Title of the sport
-
   })
   title: string;
 
   @property({
     type: 'number', // Status of the sport
-
   })
   status: number;
 
   @property({
     type: 'string', // Image URL for the sport
-
   })
   imageUrl?: string;
 
   @property({
     type: 'string', // Image URL for the sport
-
   })
   backgroundUrl?: string;
 
@@ -52,7 +53,6 @@ export class Sports extends Entity {
 
   @property({
     type: 'number', // ID of the person who created the record
-
   })
   createdBy?: number;
 
@@ -69,7 +69,6 @@ export class Sports extends Entity {
   @property({
     type: 'number', // Status for soft deletion
     default: 0, // Default value
-
   })
   statusDeleted: number;
 

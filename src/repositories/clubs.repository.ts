@@ -10,14 +10,24 @@ export class ClubsRepository extends SequelizeCrudRepository<
   typeof Clubs.prototype.id,
   ClubsRelations
 > {
-
-  public readonly sportsGroup: BelongsToAccessor<SportsGroups, typeof Clubs.prototype.id>;
+  public readonly sportsGroup: BelongsToAccessor<
+    SportsGroups,
+    typeof Clubs.prototype.id
+  >;
 
   constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource, @repository.getter('SportsGroupsRepository') protected sportsGroupsRepositoryGetter: Getter<SportsGroupsRepository>,
+    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
+    @repository.getter('SportsGroupsRepository')
+    protected sportsGroupsRepositoryGetter: Getter<SportsGroupsRepository>,
   ) {
     super(Clubs, dataSource);
-    this.sportsGroup = this.createBelongsToAccessorFor('sportsGroup', sportsGroupsRepositoryGetter,);
-    this.registerInclusionResolver('sportsGroup', this.sportsGroup.inclusionResolver);
+    this.sportsGroup = this.createBelongsToAccessorFor(
+      'sportsGroup',
+      sportsGroupsRepositoryGetter,
+    );
+    this.registerInclusionResolver(
+      'sportsGroup',
+      this.sportsGroup.inclusionResolver,
+    );
   }
 }

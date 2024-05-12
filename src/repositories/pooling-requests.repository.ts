@@ -8,9 +8,7 @@ export class PoolingRequestsRepository extends SequelizeCrudRepository<
   typeof PoolingRequests.prototype.id,
   PoolingRequestsRelations
 > {
-  constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
-  ) {
+  constructor(@inject('datasources.mysqldb') dataSource: MysqldbDataSource) {
     super(PoolingRequests, dataSource);
   }
 }

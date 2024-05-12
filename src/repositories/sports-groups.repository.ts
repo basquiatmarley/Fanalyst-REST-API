@@ -10,14 +10,21 @@ export class SportsGroupsRepository extends SequelizeCrudRepository<
   typeof SportsGroups.prototype.id,
   SportsGroupsRelations
 > {
-
-  public readonly sports: HasManyRepositoryFactory<Sports, typeof SportsGroups.prototype.id>;
+  public readonly sports: HasManyRepositoryFactory<
+    Sports,
+    typeof SportsGroups.prototype.id
+  >;
 
   constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource, @repository.getter('SportsRepository') protected sportsRepositoryGetter: Getter<SportsRepository>,
+    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
+    @repository.getter('SportsRepository')
+    protected sportsRepositoryGetter: Getter<SportsRepository>,
   ) {
     super(SportsGroups, dataSource);
-    this.sports = this.createHasManyRepositoryFactoryFor('sports', sportsRepositoryGetter,);
+    this.sports = this.createHasManyRepositoryFactoryFor(
+      'sports',
+      sportsRepositoryGetter,
+    );
     this.registerInclusionResolver('sports', this.sports.inclusionResolver);
   }
 }

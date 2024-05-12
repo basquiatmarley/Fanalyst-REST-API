@@ -31,13 +31,11 @@ export class SportsGroups extends Entity {
 
   @property({
     type: 'string', // Optional field for image URL
-
   })
   imageUrl?: string;
 
   @property({
     type: 'string', // Image URL for the sport
-
   })
   backgroundUrl?: string;
 
@@ -49,7 +47,6 @@ export class SportsGroups extends Entity {
 
   @property({
     type: 'number', // ID of the person who created the record
-
   })
   createdBy?: number; // Optional field for creator's ID
 

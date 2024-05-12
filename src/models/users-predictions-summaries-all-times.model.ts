@@ -53,7 +53,6 @@ export class UsersPredictionsSummariesAts extends Entity {
   })
   countPrediction: number; // Total jumlah prediksi dalam periode tertentu
 
-
   @property({
     type: 'number',
     default: 0,
@@ -80,7 +79,8 @@ export class UsersPredictionsSummariesAts extends Entity {
 }
 
 export interface UsersPredictionsSummariesAtsRelations {
-  user: Users,
+  user: Users;
 }
 
-export type UsersPredictionsSummariesAtsWithRelations = UsersPredictionsSummariesAts & UsersPredictionsSummariesAtsRelations;
+export type UsersPredictionsSummariesAtsWithRelations =
+  UsersPredictionsSummariesAts & UsersPredictionsSummariesAtsRelations;

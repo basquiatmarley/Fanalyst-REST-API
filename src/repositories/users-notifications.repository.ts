@@ -8,9 +8,7 @@ export class UsersNotificationsRepository extends SequelizeCrudRepository<
   typeof UsersNotifications.prototype.id,
   UsersNotificationsRelations
 > {
-  constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
-  ) {
+  constructor(@inject('datasources.mysqldb') dataSource: MysqldbDataSource) {
     super(UsersNotifications, dataSource);
   }
 }

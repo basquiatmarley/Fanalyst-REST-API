@@ -1,4 +1,10 @@
-import {Entity, belongsTo, hasMany, model, property} from '@loopback/repository';
+import {
+  Entity,
+  belongsTo,
+  hasMany,
+  model,
+  property,
+} from '@loopback/repository';
 import {Clubs} from './clubs.model';
 import {Odds} from './odds.model';
 import {Scores} from './scores.model';
@@ -11,7 +17,6 @@ import {UsersPredictions} from './users-predictions.model';
   name: 'events',
 })
 export class Events extends Entity {
-
   @property({
     type: 'string',
     id: true, // Primary key
@@ -84,7 +89,6 @@ export class Events extends Entity {
   })
   awayClubId: number;
 
-
   @hasMany(() => Scores, {keyTo: 'eventId'})
   scores: Scores[];
 
@@ -100,14 +104,13 @@ export class Events extends Entity {
   constructor(data?: Partial<Events>) {
     super(data); // Initialize the model with given data
   }
-
 }
 
 export interface EventsRelations {
-  sport: Sports,
-  sportsGroup: SportsGroups,
-  homeClub: Clubs,
-  awayClub: Clubs,
+  sport: Sports;
+  sportsGroup: SportsGroups;
+  homeClub: Clubs;
+  awayClub: Clubs;
 }
 
 export type EventsWithRelations = Events & EventsRelations;

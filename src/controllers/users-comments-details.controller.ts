@@ -16,17 +16,15 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  UsersComments,
-} from '../models';
+import {UsersComments} from '../models';
 import {UsersCommentsRepository} from '../repositories';
-
 
 @authenticate('jwt')
 export class UsersCommentsUsersCommentsController {
   constructor(
-    @repository(UsersCommentsRepository) protected usersCommentsRepository: UsersCommentsRepository,
-  ) { }
+    @repository(UsersCommentsRepository)
+    protected usersCommentsRepository: UsersCommentsRepository,
+  ) {}
 
   @get('/users-comments/{id}/details', {
     responses: {
@@ -51,7 +49,9 @@ export class UsersCommentsUsersCommentsController {
     responses: {
       '200': {
         description: 'UsersComments model instance',
-        content: {'application/json': {schema: getModelSchemaRef(UsersComments)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(UsersComments)},
+        },
       },
     },
   })
@@ -63,13 +63,16 @@ export class UsersCommentsUsersCommentsController {
           schema: getModelSchemaRef(UsersComments, {
             title: 'NewUsersCommentsInUsersComments',
             exclude: ['id'],
-            optional: ['parentId']
+            optional: ['parentId'],
           }),
         },
       },
-    }) usersComments: Omit<UsersComments, 'id'>,
+    })
+    usersComments: Omit<UsersComments, 'id'>,
   ): Promise<UsersComments> {
-    return this.usersCommentsRepository.usersCommentsDetails(id).create(usersComments);
+    return this.usersCommentsRepository
+      .usersCommentsDetails(id)
+      .create(usersComments);
   }
 
   @patch('/users-comments/{id}/details', {
@@ -90,9 +93,12 @@ export class UsersCommentsUsersCommentsController {
       },
     })
     usersComments: Partial<UsersComments>,
-    @param.query.object('where', getWhereSchemaFor(UsersComments)) where?: Where<UsersComments>,
+    @param.query.object('where', getWhereSchemaFor(UsersComments))
+    where?: Where<UsersComments>,
   ): Promise<Count> {
-    return this.usersCommentsRepository.usersCommentsDetails(id).patch(usersComments, where);
+    return this.usersCommentsRepository
+      .usersCommentsDetails(id)
+      .patch(usersComments, where);
   }
 
   @del('/users-comments/{id}/details', {
@@ -105,7 +111,8 @@ export class UsersCommentsUsersCommentsController {
   })
   async delete(
     @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(UsersComments)) where?: Where<UsersComments>,
+    @param.query.object('where', getWhereSchemaFor(UsersComments))
+    where?: Where<UsersComments>,
   ): Promise<Count> {
     return this.usersCommentsRepository.usersCommentsDetails(id).delete(where);
   }

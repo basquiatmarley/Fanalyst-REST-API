@@ -1,7 +1,7 @@
 import {Entity, model, property} from '@loopback/repository';
 
 @model({
-  name: 'users_notifications'
+  name: 'users_notifications',
 })
 export class UsersNotifications extends Entity {
   @property({
@@ -64,4 +64,5 @@ export interface UsersNotificationsRelations {
   // describe navigational properties here
 }
 
-export type UsersNotificationsWithRelations = UsersNotifications & UsersNotificationsRelations;
+export type UsersNotificationsWithRelations = UsersNotifications &
+  UsersNotificationsRelations;

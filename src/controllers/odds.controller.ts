@@ -26,7 +26,7 @@ export class OddsController {
   constructor(
     @repository(OddsRepository)
     public oddsRepository: OddsRepository,
-  ) { }
+  ) {}
 
   @post('/odds')
   @response(200, {
@@ -54,9 +54,7 @@ export class OddsController {
     description: 'Odds model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Odds) where?: Where<Odds>,
-  ): Promise<Count> {
+  async count(@param.where(Odds) where?: Where<Odds>): Promise<Count> {
     return this.oddsRepository.count(where);
   }
 
@@ -72,9 +70,7 @@ export class OddsController {
       },
     },
   })
-  async find(
-    @param.filter(Odds) filter?: Filter<Odds>,
-  ): Promise<Odds[]> {
+  async find(@param.filter(Odds) filter?: Filter<Odds>): Promise<Odds[]> {
     return this.oddsRepository.find(filter);
   }
 
@@ -108,7 +104,7 @@ export class OddsController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Odds, {exclude: 'where'}) filter?: FilterExcludingWhere<Odds>
+    @param.filter(Odds, {exclude: 'where'}) filter?: FilterExcludingWhere<Odds>,
   ): Promise<Odds> {
     return this.oddsRepository.findById(id, filter);
   }

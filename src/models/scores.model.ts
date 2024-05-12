@@ -4,7 +4,6 @@ import {Entity, model, property} from '@loopback/repository';
   name: 'scores',
 })
 export class Scores extends Entity {
-
   @property({
     type: 'number',
     id: true,
@@ -61,7 +60,6 @@ export class Scores extends Entity {
   constructor(data?: Partial<Scores>) {
     super(data); // Initialize the model with the given data
   }
-
 }
 
 export interface ScoresRelations {

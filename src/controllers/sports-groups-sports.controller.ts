@@ -16,18 +16,15 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  Sports,
-  SportsGroups,
-} from '../models';
+import {Sports, SportsGroups} from '../models';
 import {SportsGroupsRepository} from '../repositories';
-
 
 @authenticate('jwt')
 export class SportsGroupsSportsController {
   constructor(
-    @repository(SportsGroupsRepository) protected sportsGroupsRepository: SportsGroupsRepository,
-  ) { }
+    @repository(SportsGroupsRepository)
+    protected sportsGroupsRepository: SportsGroupsRepository,
+  ) {}
 
   @get('/sports-groups/{id}/sports', {
     responses: {
@@ -64,11 +61,12 @@ export class SportsGroupsSportsController {
           schema: getModelSchemaRef(Sports, {
             title: 'NewSportsInSportsGroups',
             exclude: ['id'],
-            optional: ['sportsGroupId']
+            optional: ['sportsGroupId'],
           }),
         },
       },
-    }) sports: Omit<Sports, 'id'>,
+    })
+    sports: Omit<Sports, 'id'>,
   ): Promise<Sports> {
     return this.sportsGroupsRepository.sports(id).create(sports);
   }
@@ -91,7 +89,8 @@ export class SportsGroupsSportsController {
       },
     })
     sports: Partial<Sports>,
-    @param.query.object('where', getWhereSchemaFor(Sports)) where?: Where<Sports>,
+    @param.query.object('where', getWhereSchemaFor(Sports))
+    where?: Where<Sports>,
   ): Promise<Count> {
     return this.sportsGroupsRepository.sports(id).patch(sports, where);
   }
@@ -106,7 +105,8 @@ export class SportsGroupsSportsController {
   })
   async delete(
     @param.path.number('id') id: number,
-    @param.query.object('where', getWhereSchemaFor(Sports)) where?: Where<Sports>,
+    @param.query.object('where', getWhereSchemaFor(Sports))
+    where?: Where<Sports>,
   ): Promise<Count> {
     return this.sportsGroupsRepository.sports(id).delete(where);
   }

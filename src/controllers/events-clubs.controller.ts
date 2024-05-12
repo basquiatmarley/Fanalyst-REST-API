@@ -1,16 +1,7 @@
 import {authenticate} from '@loopback/authentication';
-import {
-  repository,
-} from '@loopback/repository';
-import {
-  get,
-  getModelSchemaRef,
-  param,
-} from '@loopback/rest';
-import {
-  Clubs,
-  Events,
-} from '../models';
+import {repository} from '@loopback/repository';
+import {get, getModelSchemaRef, param} from '@loopback/rest';
+import {Clubs, Events} from '../models';
 import {EventsRepository} from '../repositories';
 
 @authenticate('jwt')
@@ -18,7 +9,7 @@ export class EventsClubsController {
   constructor(
     @repository(EventsRepository)
     public eventsRepository: EventsRepository,
-  ) { }
+  ) {}
 
   @get('/events/{id}/clubs-away', {
     responses: {

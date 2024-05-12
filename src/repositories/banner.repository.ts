@@ -8,9 +8,7 @@ export class BannerRepository extends SequelizeCrudRepository<
   typeof Banner.prototype.id,
   BannerRelations
 > {
-  constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
-  ) {
+  constructor(@inject('datasources.mysqldb') dataSource: MysqldbDataSource) {
     super(Banner, dataSource);
   }
 }

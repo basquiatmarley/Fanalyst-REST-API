@@ -16,17 +16,14 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  Events,
-  UsersPredictions,
-} from '../models';
+import {Events, UsersPredictions} from '../models';
 import {EventsRepository} from '../repositories';
 
 @authenticate('jwt')
 export class EventsUsersPredictionsController {
   constructor(
     @repository(EventsRepository) protected eventsRepository: EventsRepository,
-  ) { }
+  ) {}
 
   @get('/events/{id}/users-predictions', {
     responses: {
@@ -51,7 +48,9 @@ export class EventsUsersPredictionsController {
     responses: {
       '200': {
         description: 'Events model instance',
-        content: {'application/json': {schema: getModelSchemaRef(UsersPredictions)}},
+        content: {
+          'application/json': {schema: getModelSchemaRef(UsersPredictions)},
+        },
       },
     },
   })
@@ -63,11 +62,12 @@ export class EventsUsersPredictionsController {
           schema: getModelSchemaRef(UsersPredictions, {
             title: 'NewUsersPredictionsInEvents',
             exclude: ['id'],
-            optional: ['eventId']
+            optional: ['eventId'],
           }),
         },
       },
-    }) usersPredictions: Omit<UsersPredictions, 'id'>,
+    })
+    usersPredictions: Omit<UsersPredictions, 'id'>,
   ): Promise<UsersPredictions> {
     return this.eventsRepository.usersPredictions(id).create(usersPredictions);
   }
@@ -90,9 +90,12 @@ export class EventsUsersPredictionsController {
       },
     })
     usersPredictions: Partial<UsersPredictions>,
-    @param.query.object('where', getWhereSchemaFor(UsersPredictions)) where?: Where<UsersPredictions>,
+    @param.query.object('where', getWhereSchemaFor(UsersPredictions))
+    where?: Where<UsersPredictions>,
   ): Promise<Count> {
-    return this.eventsRepository.usersPredictions(id).patch(usersPredictions, where);
+    return this.eventsRepository
+      .usersPredictions(id)
+      .patch(usersPredictions, where);
   }
 
   @del('/events/{id}/users-predictions', {
@@ -105,7 +108,8 @@ export class EventsUsersPredictionsController {
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(UsersPredictions)) where?: Where<UsersPredictions>,
+    @param.query.object('where', getWhereSchemaFor(UsersPredictions))
+    where?: Where<UsersPredictions>,
   ): Promise<Count> {
     return this.eventsRepository.usersPredictions(id).delete(where);
   }

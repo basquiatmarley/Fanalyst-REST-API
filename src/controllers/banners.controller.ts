@@ -7,13 +7,13 @@ import {
   Where,
 } from '@loopback/repository';
 import {
-  post,
-  param,
+  del,
   get,
   getModelSchemaRef,
+  param,
   patch,
+  post,
   put,
-  del,
   requestBody,
   response,
 } from '@loopback/rest';
@@ -23,7 +23,7 @@ import {BannerRepository} from '../repositories';
 export class BannersController {
   constructor(
     @repository(BannerRepository)
-    public bannerRepository : BannerRepository,
+    public bannerRepository: BannerRepository,
   ) {}
 
   @post('/banners')
@@ -52,9 +52,7 @@ export class BannersController {
     description: 'Banner model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Banner) where?: Where<Banner>,
-  ): Promise<Count> {
+  async count(@param.where(Banner) where?: Where<Banner>): Promise<Count> {
     return this.bannerRepository.count(where);
   }
 
@@ -70,10 +68,30 @@ export class BannersController {
       },
     },
   })
-  async find(
-    @param.filter(Banner) filter?: Filter<Banner>,
-  ): Promise<Banner[]> {
+  async find(@param.filter(Banner) filter?: Filter<Banner>): Promise<Banner[]> {
     return this.bannerRepository.find(filter);
+  }
+
+  @get('/banners/pagination')
+  @response(200, {
+    description: 'Array of Banner pagination model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Banner, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findPagination(@param.filter(Banner) filter?: Filter<Banner>): Promise<{
+    records: Banner[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.bannerRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.bannerRepository.count(where);
+    return {records: records, totalCount: totalCountData.count};
   }
 
   @patch('/banners')
@@ -106,7 +124,8 @@ export class BannersController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Banner, {exclude: 'where'}) filter?: FilterExcludingWhere<Banner>
+    @param.filter(Banner, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Banner>,
   ): Promise<Banner> {
     return this.bannerRepository.findById(id, filter);
   }

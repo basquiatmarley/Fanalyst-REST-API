@@ -16,17 +16,14 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  Events,
-  Scores,
-} from '../models';
+import {Events, Scores} from '../models';
 import {EventsRepository} from '../repositories';
 
 @authenticate('jwt')
 export class EventsScoresController {
   constructor(
     @repository(EventsRepository) protected eventsRepository: EventsRepository,
-  ) { }
+  ) {}
 
   @get('/events/{id}/scores', {
     responses: {
@@ -63,11 +60,12 @@ export class EventsScoresController {
           schema: getModelSchemaRef(Scores, {
             title: 'NewScoresInEvents',
             exclude: ['id'],
-            optional: ['eventId']
+            optional: ['eventId'],
           }),
         },
       },
-    }) scores: Omit<Scores, 'id'>,
+    })
+    scores: Omit<Scores, 'id'>,
   ): Promise<Scores> {
     return this.eventsRepository.scores(id).create(scores);
   }
@@ -90,7 +88,8 @@ export class EventsScoresController {
       },
     })
     scores: Partial<Scores>,
-    @param.query.object('where', getWhereSchemaFor(Scores)) where?: Where<Scores>,
+    @param.query.object('where', getWhereSchemaFor(Scores))
+    where?: Where<Scores>,
   ): Promise<Count> {
     return this.eventsRepository.scores(id).patch(scores, where);
   }
@@ -105,7 +104,8 @@ export class EventsScoresController {
   })
   async delete(
     @param.path.string('id') id: string,
-    @param.query.object('where', getWhereSchemaFor(Scores)) where?: Where<Scores>,
+    @param.query.object('where', getWhereSchemaFor(Scores))
+    where?: Where<Scores>,
   ): Promise<Count> {
     return this.eventsRepository.scores(id).delete(where);
   }

@@ -16,17 +16,14 @@ import {
   post,
   requestBody,
 } from '@loopback/rest';
-import {
-  Events,
-  Odds,
-} from '../models';
+import {Events, Odds} from '../models';
 import {EventsRepository} from '../repositories';
 
 @authenticate('jwt')
 export class EventsOddsController {
   constructor(
     @repository(EventsRepository) protected eventsRepository: EventsRepository,
-  ) { }
+  ) {}
 
   @get('/events/{id}/odds', {
     responses: {
@@ -63,11 +60,12 @@ export class EventsOddsController {
           schema: getModelSchemaRef(Odds, {
             title: 'NewOddsInEvents',
             exclude: ['id'],
-            optional: ['eventId']
+            optional: ['eventId'],
           }),
         },
       },
-    }) odds: Omit<Odds, 'id'>,
+    })
+    odds: Omit<Odds, 'id'>,
   ): Promise<Odds> {
     return this.eventsRepository.odds(id).create(odds);
   }

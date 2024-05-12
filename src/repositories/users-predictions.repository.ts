@@ -10,14 +10,21 @@ export class UsersPredictionsRepository extends SequelizeCrudRepository<
   typeof UsersPredictions.prototype.id,
   UsersPredictionsRelations
 > {
-
-  public readonly event: BelongsToAccessor<Events, typeof UsersPredictions.prototype.id>;
+  public readonly event: BelongsToAccessor<
+    Events,
+    typeof UsersPredictions.prototype.id
+  >;
 
   constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource, @repository.getter('EventsRepository') protected eventsRepositoryGetter: Getter<EventsRepository>,
+    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
+    @repository.getter('EventsRepository')
+    protected eventsRepositoryGetter: Getter<EventsRepository>,
   ) {
     super(UsersPredictions, dataSource);
-    this.event = this.createBelongsToAccessorFor('event', eventsRepositoryGetter,);
+    this.event = this.createBelongsToAccessorFor(
+      'event',
+      eventsRepositoryGetter,
+    );
     this.registerInclusionResolver('event', this.event.inclusionResolver);
   }
 }

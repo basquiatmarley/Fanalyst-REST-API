@@ -1,7 +1,7 @@
 import {authenticate, TokenService} from '@loopback/authentication';
 import {
   UserRepository as JWTUserRepository,
-  TokenServiceBindings
+  TokenServiceBindings,
 } from '@loopback/authentication-jwt';
 import {inject} from '@loopback/core';
 import {repository} from '@loopback/repository';
@@ -12,7 +12,7 @@ import {
   HttpErrors,
   post,
   requestBody,
-  response
+  response,
 } from '@loopback/rest';
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {compare, genSalt, hash} from 'bcryptjs';
@@ -29,26 +29,48 @@ export class AuthController {
     public jwtService: TokenService,
     @inject(SecurityBindings.USER, {optional: true})
     public user: UserProfile,
-    @repository(JWTUserRepository) protected jwtUserRepository: JWTUserRepository,
+    @repository(JWTUserRepository)
+    protected jwtUserRepository: JWTUserRepository,
     @repository(UsersRepository) protected usersRepository: UsersRepository,
-  ) { }
+  ) {}
 
   @post('/auth/login')
   @response(200, {
     description: 'Password reset',
-    content: {'application/json': {schema: {type: 'object', properties: {token: {type: 'string'}, userData: {type: 'object'}}}}},
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {token: {type: 'string'}, userData: {type: 'object'}},
+        },
+      },
+    },
   })
   async login(
     @requestBody({
-      content: {'application/json': {schema: {type: 'object', properties: {email: {type: 'string'}, password: {type: 'string'}, generatedPassword: {type: 'boolean'}}}}},
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {
+              email: {type: 'string'},
+              password: {type: 'string'},
+              generatedPassword: {type: 'boolean'},
+            },
+          },
+        },
+      },
     })
-    request: {email: string, password: string, generatedPassword: boolean | false},
-  ): Promise<{token: string, userData: Users}> {
-
+    request: {
+      email: string;
+      password: string;
+      generatedPassword: boolean | false;
+    },
+  ): Promise<{token: string; userData: Users}> {
     const findOneUser = await this.usersRepository.findOne({
       where: {
-        and: [{email: request.email}, {status: 1},],
-      }
+        and: [{email: request.email}, {status: 1}],
+      },
     });
 
     if (!findOneUser) {
@@ -77,39 +99,51 @@ export class AuthController {
   @post('/auth/login-with-third')
   @response(200, {
     description: 'Password reset',
-    content: {'application/json': {schema: {type: 'object', properties: {token: {type: 'string'}, userData: {type: 'object'}}}}},
+    content: {
+      'application/json': {
+        schema: {
+          type: 'object',
+          properties: {token: {type: 'string'}, userData: {type: 'object'}},
+        },
+      },
+    },
   })
   async loginWith(
     @requestBody({
       content: {
         'application/json': {
           schema: {
-            type: 'object', properties: {
+            type: 'object',
+            properties: {
               email: {type: 'string'},
               password: {type: 'string'},
               idToken: {type: 'string'},
               type: {type: 'string'},
               imageUrl: {type: 'string'},
-            }
-          }
-        }
+            },
+          },
+        },
       },
     })
-    request: {email: string, name: string, imageUrl: string | '', idToken: string, type: string},
-  ): Promise<{token: string, userData: Users & UsersRelations}> {
-
+    request: {
+      email: string;
+      name: string;
+      imageUrl: string | '';
+      idToken: string;
+      type: string;
+    },
+  ): Promise<{token: string; userData: Users & UsersRelations}> {
     var validateToken = false;
-    if (request.type == "GOOGLE") {
+    if (request.type == 'GOOGLE') {
       try {
         const clientId = [
-          "547688133294-d6796j2jnlg52re5hu06u7lm2r4a4bpo.apps.googleusercontent.com",
-          "547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com",
+          '547688133294-d6796j2jnlg52re5hu06u7lm2r4a4bpo.apps.googleusercontent.com',
+          '547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com',
         ];
         const client = new OAuth2Client();
         const ticket = await client.verifyIdToken({
           idToken: request.idToken,
           audience: clientId,
-
         });
         const payload = ticket.getPayload();
         if (payload?.sub != null) {
@@ -132,13 +166,16 @@ export class AuthController {
 
     var findOneUser = await this.usersRepository.findOne({
       where: {
-        and: [{email: request.email}, {status: 1},],
-      }
+        and: [{email: request.email}, {status: 1}],
+      },
     });
-    var nameSplt = request.name.split(" ");
-    var lastName = (nameSplt[1] != undefined) ? nameSplt[1] : '';
+    var nameSplt = request.name.split(' ');
+    var lastName = nameSplt[1] != undefined ? nameSplt[1] : '';
     if (!findOneUser) {
-      var password = await hash(request.email + randomUUID + request.name, await genSalt());
+      var password = await hash(
+        request.email + randomUUID + request.name,
+        await genSalt(),
+      );
       var newUser = {
         firstName: nameSplt[0],
         lastName: lastName,
@@ -161,7 +198,6 @@ export class AuthController {
     return {token: token, userData: findOneUser};
   }
 
-
   @authenticate('jwt')
   @get('/auth/verify', {
     responses: {
@@ -180,7 +216,7 @@ export class AuthController {
   async whoAmI(
     @inject(SecurityBindings.USER)
     currentUserProfile: UserProfile,
-  ): Promise<{token: string, userData: Users}> {
+  ): Promise<{token: string; userData: Users}> {
     var uId = currentUserProfile[securityId];
     const findOneUser = await this.usersRepository.findOne({
       where: {id: Number(uId)},
@@ -196,7 +232,6 @@ export class AuthController {
     });
 
     return {token: token, userData: findOneUser};
-
   }
 
   @post('/auth/signup')
@@ -210,18 +245,31 @@ export class AuthController {
         'application/json': {
           schema: getModelSchemaRef(Users, {
             title: 'Sign Up Schema',
-            exclude: ['id', 'statusDeleted', 'imageUrl', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusDeleted', 'status'],
+            exclude: [
+              'id',
+              'statusDeleted',
+              'imageUrl',
+              'createdAt',
+              'createdBy',
+              'updatedAt',
+              'updatedBy',
+              'statusDeleted',
+              'status',
+            ],
           }),
         },
       },
     })
     user: Omit<Users, 'id'>,
   ): Promise<Users> {
-
-    const existingUser = await this.usersRepository.findOne({where: {email: user.email}});
+    const existingUser = await this.usersRepository.findOne({
+      where: {email: user.email},
+    });
 
     if (existingUser) {
-      throw new HttpErrors.Conflict(`User with email ${user.email} already exists`);
+      throw new HttpErrors.Conflict(
+        `User with email ${user.email} already exists`,
+      );
     }
 
     user.status = 1;
@@ -242,10 +290,11 @@ export class AuthController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {partial: true, }),
+          schema: getModelSchemaRef(Users, {partial: true}),
         },
       },
-    }) userData: Users,
+    })
+    userData: Users,
   ): Promise<Users> {
     const uId: number = Number(currentUserProfile[securityId]);
     const findOneUser = await this.usersRepository.findById(uId);
@@ -254,14 +303,13 @@ export class AuthController {
     }
     const emailValidationCheck = await this.usersRepository.findOne({
       where: {
-        and: [
-          {email: userData.email},
-          {id: {neq: uId}},
-        ]
-      }
+        and: [{email: userData.email}, {id: {neq: uId}}],
+      },
     });
     if (emailValidationCheck) {
-      throw new HttpErrors.Conflict(`User with email ${userData.email} already exists`);
+      throw new HttpErrors.Conflict(
+        `User with email ${userData.email} already exists`,
+      );
     }
 
     if (userData.password != undefined && userData.password != '') {
@@ -279,20 +327,30 @@ export class AuthController {
   @post('/auth/forgot')
   @response(200, {
     description: 'Forgot password',
-    content: {'application/json': {schema: {type: 'object', properties: {message: {type: 'string'}}}}},
+    content: {
+      'application/json': {
+        schema: {type: 'object', properties: {message: {type: 'string'}}},
+      },
+    },
   })
   async forgot(
     @requestBody({
-      content: {'application/json': {schema: {type: 'object', properties: {email: {type: 'string'}}}}},
+      content: {
+        'application/json': {
+          schema: {type: 'object', properties: {email: {type: 'string'}}},
+        },
+      },
     })
-    request: {email: string},
-  ): Promise<{"message": string}> {
+    request: {
+      email: string;
+    },
+  ): Promise<{message: string}> {
     const email = request.email;
 
     const existingUser = await this.usersRepository.findOne({
       where: {
-        and: [{email: request.email}, {status: 1},],
-      }
+        and: [{email: request.email}, {status: 1}],
+      },
     });
 
     if (!existingUser) {
@@ -302,8 +360,8 @@ export class AuthController {
     const buffer = randomBytes(5);
     const otp = buffer.toString('hex').substring(0, 5);
     existingUser.otp = otp;
-    const newDateNow = new Date;
-    const newDateExpired = new Date(newDateNow.getTime() + (3 * 60 * 60 * 1000)); // 3 HOURS
+    const newDateNow = new Date();
+    const newDateExpired = new Date(newDateNow.getTime() + 3 * 60 * 60 * 1000); // 3 HOURS
     existingUser.otpExpired = newDateExpired.toString();
 
     await this.usersRepository.updateById(existingUser.id, existingUser);
@@ -313,52 +371,71 @@ export class AuthController {
         '[FANALYST APP] Forgot Password',
         `This is your otp for reset password : ${existingUser.otp}. Your otp will expired on 3 Hours.`,
       );
-
     } catch (e) {
       console.log(e);
       throw new HttpErrors.Conflict(`Your otp faile send email.`);
     }
 
-
-    return {message: "SUCCESS"};
+    return {message: 'SUCCESS'};
   }
 
   @post('/auth/reset')
   @response(200, {
     description: 'Password reset',
-    content: {'application/json': {schema: {type: 'object', properties: {message: {type: 'string'}}}}},
+    content: {
+      'application/json': {
+        schema: {type: 'object', properties: {message: {type: 'string'}}},
+      },
+    },
   })
   async reset(
     @requestBody({
-      content: {'application/json': {schema: {type: 'object', properties: {otp: {type: 'string'}, password: {type: 'string'}}}}},
+      content: {
+        'application/json': {
+          schema: {
+            type: 'object',
+            properties: {otp: {type: 'string'}, password: {type: 'string'}},
+          },
+        },
+      },
     })
-    request: {otp: string, password: string},
-  ): Promise<{"message": string}> {
+    request: {
+      otp: string;
+      password: string;
+    },
+  ): Promise<{message: string}> {
     const otpf = request.otp;
-    const newDateNow = new Date;
-    const existingUser = await this.usersRepository.findOne({where: {otp: otpf, otpExpired: {gt: newDateNow.toString()}}});
+    const newDateNow = new Date();
+    const existingUser = await this.usersRepository.findOne({
+      where: {otp: otpf, otpExpired: {gt: newDateNow.toString()}},
+    });
 
     if (!existingUser) {
       throw new HttpErrors.NotFound(`OTP IS NOT VALID.`);
     }
 
-    existingUser.otp = "";
+    existingUser.otp = '';
     existingUser.otpExpired = null;
     existingUser.password = await hash(request.password, await genSalt());
     await this.usersRepository.updateById(existingUser.id, existingUser);
 
-    return {message: "SUCCESS"};
+    return {message: 'SUCCESS'};
   }
 
   @authenticate('jwt')
   @del('/auth/delete-account')
   @response(200, {
     description: 'delete account',
-    content: {'application/json': {schema: {type: 'object', properties: {message: {type: 'string'}}}}},
+    content: {
+      'application/json': {
+        schema: {type: 'object', properties: {message: {type: 'string'}}},
+      },
+    },
   })
   async deleteAccount(
     @inject(SecurityBindings.USER)
-    currentUserProfile: UserProfile): Promise<{"message": string}> {
+    currentUserProfile: UserProfile,
+  ): Promise<{message: string}> {
     const uId: number = Number(currentUserProfile[securityId]);
     const existingUser = await this.usersRepository.findById(uId);
 
@@ -366,11 +443,6 @@ export class AuthController {
     existingUser.statusDeleted = 1;
     await this.usersRepository.updateById(existingUser.id, existingUser);
 
-    return {message: "SUCCESS"};
+    return {message: 'SUCCESS'};
   }
-
-
 }
-
-
-

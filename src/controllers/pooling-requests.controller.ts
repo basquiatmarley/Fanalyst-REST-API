@@ -16,22 +16,32 @@ import {
   post,
   put,
   requestBody,
-  response
+  response,
 } from '@loopback/rest';
 import {PoolingRequests} from '../models';
-import {ClubsRepository, EventsRepository, OddsRepository, PoolingRequestsRepository, ScoresRepository, SportsGroupsRepository, SportsRepository} from '../repositories';
+import {
+  ClubsRepository,
+  EventsRepository,
+  OddsRepository,
+  PoolingRequestsRepository,
+  ScoresRepository,
+  SportsGroupsRepository,
+  SportsRepository,
+} from '../repositories';
 
 @authenticate('jwt')
 export class PoolingRequestsController {
   constructor(
-    @repository(PoolingRequestsRepository) public poolingRequestsRepository: PoolingRequestsRepository,
-    @repository(SportsGroupsRepository) public sportsGroupsRepository: SportsGroupsRepository,
+    @repository(PoolingRequestsRepository)
+    public poolingRequestsRepository: PoolingRequestsRepository,
+    @repository(SportsGroupsRepository)
+    public sportsGroupsRepository: SportsGroupsRepository,
     @repository(SportsRepository) public sportsRepository: SportsRepository,
     @repository(ClubsRepository) public clubsRepository: ClubsRepository,
     @repository(EventsRepository) public eventsRepository: EventsRepository,
     @repository(OddsRepository) public oddsRepository: OddsRepository,
     @repository(ScoresRepository) public scoresRepository: ScoresRepository,
-  ) { }
+  ) {}
 
   @post('/pooling-requests')
   @response(200, {
@@ -83,6 +93,31 @@ export class PoolingRequestsController {
     return this.poolingRequestsRepository.find(filter);
   }
 
+  @get('/pooling-requests/pagination')
+  @response(200, {
+    description: 'Array of PoolingRequests paginations model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(PoolingRequests, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async pagination(
+    @param.filter(PoolingRequests) filter?: Filter<PoolingRequests>,
+  ): Promise<{
+    records: PoolingRequests[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.poolingRequestsRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.poolingRequestsRepository.count(where);
+
+    return {records: records, totalCount: totalCountData.count};
+  }
+
   @patch('/pooling-requests')
   @response(200, {
     description: 'PoolingRequests PATCH success count',
@@ -113,7 +148,8 @@ export class PoolingRequestsController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(PoolingRequests, {exclude: 'where'}) filter?: FilterExcludingWhere<PoolingRequests>
+    @param.filter(PoolingRequests, {exclude: 'where'})
+    filter?: FilterExcludingWhere<PoolingRequests>,
   ): Promise<PoolingRequests> {
     return this.poolingRequestsRepository.findById(id, filter);
   }

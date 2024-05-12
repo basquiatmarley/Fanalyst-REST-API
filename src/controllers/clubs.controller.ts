@@ -5,7 +5,7 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where
+  Where,
 } from '@loopback/repository';
 import {
   del,
@@ -21,13 +21,12 @@ import {
 import {Clubs} from '../models';
 import {ClubsRepository} from '../repositories';
 
-
 @authenticate('jwt')
 export class ClubsController {
   constructor(
     @repository(ClubsRepository)
     public clubsRepository: ClubsRepository,
-  ) { }
+  ) {}
 
   @post('/clubs')
   @response(200, {
@@ -55,9 +54,7 @@ export class ClubsController {
     description: 'Clubs model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Clubs) where?: Where<Clubs>,
-  ): Promise<Count> {
+  async count(@param.where(Clubs) where?: Where<Clubs>): Promise<Count> {
     return this.clubsRepository.count(where);
   }
 
@@ -73,13 +70,31 @@ export class ClubsController {
       },
     },
   })
-  async find(
-    @param.filter(Clubs) filter?: Filter<Clubs>,
-  ): Promise<Clubs[]> {
-
+  async find(@param.filter(Clubs) filter?: Filter<Clubs>): Promise<Clubs[]> {
     return this.clubsRepository.find(filter);
   }
 
+  @get('/clubs/pagination')
+  @response(200, {
+    description: 'Array of Clubs pagination model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Clubs, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findPagination(@param.filter(Clubs) filter?: Filter<Clubs>): Promise<{
+    records: Clubs[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.clubsRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.clubsRepository.count(where);
+    return {records: records, totalCount: totalCountData.count};
+  }
 
   @patch('/clubs')
   @response(200, {
@@ -111,7 +126,8 @@ export class ClubsController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Clubs, {exclude: 'where'}) filter?: FilterExcludingWhere<Clubs>
+    @param.filter(Clubs, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Clubs>,
   ): Promise<Clubs> {
     return this.clubsRepository.findById(id, filter);
   }
@@ -131,7 +147,6 @@ export class ClubsController {
     })
     clubs: Clubs,
   ): Promise<Clubs> {
-
     await this.clubsRepository.updateById(id, clubs);
     return this.clubsRepository.findById(id);
   }

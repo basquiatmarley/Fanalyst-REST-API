@@ -8,9 +8,7 @@ export class UsersFcmTokensRepository extends SequelizeCrudRepository<
   typeof UsersFcmTokens.prototype.id,
   UsersFcmTokensRelations
 > {
-  constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
-  ) {
+  constructor(@inject('datasources.mysqldb') dataSource: MysqldbDataSource) {
     super(UsersFcmTokens, dataSource);
   }
 }

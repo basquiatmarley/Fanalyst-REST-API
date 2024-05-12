@@ -79,4 +79,5 @@ export interface PoolingRequestsRelations {
   // describe navigational properties here
 }
 
-export type PoolingRequestsWithRelations = PoolingRequests & PoolingRequestsRelations;
+export type PoolingRequestsWithRelations = PoolingRequests &
+  PoolingRequestsRelations;

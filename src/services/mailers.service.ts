@@ -26,4 +26,6 @@ export class EmailService {
   }
 }
 
-export const EMAIL_SERVICE = BindingKey.create<EmailService>('services.EmailService');
+export const EMAIL_SERVICE = BindingKey.create<EmailService>(
+  'services.EmailService',
+);

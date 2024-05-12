@@ -6,7 +6,7 @@ import {
   Request,
   requestBody,
   Response,
-  RestBindings
+  RestBindings,
 } from '@loopback/rest';
 import path from 'path';
 import {FILE_UPLOAD_SERVICE} from '../keys';
@@ -23,7 +23,7 @@ export class FileManagerController {
    */
   constructor(
     @inject(FILE_UPLOAD_SERVICE) private handler: FileUploadHandler,
-  ) { }
+  ) {}
 
   @post('/files/upload', {
     responses: {
@@ -41,8 +41,9 @@ export class FileManagerController {
   })
   async fileUpload(
     @requestBody.file({
-      description: "Binary file to upload",
-    }) request: Request,
+      description: 'Binary file to upload',
+    })
+    request: Request,
     @inject(RestBindings.Http.RESPONSE) response: Response,
   ): Promise<object> {
     return new Promise<object>((resolve, reject) => {
@@ -51,7 +52,7 @@ export class FileManagerController {
         else {
           const filesUpload = FileManagerController.getFilesAndFields(request);
           const files = filesUpload.files.map((file: any) => file.fileName);
-          resolve({message: "success", files: files});
+          resolve({message: 'success', files: files});
         }
       });
     });

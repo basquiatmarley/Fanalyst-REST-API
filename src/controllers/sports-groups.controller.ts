@@ -21,13 +21,12 @@ import {
 import {SportsGroups} from '../models';
 import {SportsGroupsRepository} from '../repositories';
 
-
 @authenticate('jwt')
 export class SportsGroupsController {
   constructor(
     @repository(SportsGroupsRepository)
     public sportsGroupsRepository: SportsGroupsRepository,
-  ) { }
+  ) {}
 
   @post('/sports-groups')
   @response(200, {
@@ -79,6 +78,30 @@ export class SportsGroupsController {
     return this.sportsGroupsRepository.find(filter);
   }
 
+  @get('/sports-groups/pagination')
+  @response(200, {
+    description: 'Array of SportsGroups model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(SportsGroups, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findPagination(
+    @param.filter(SportsGroups) filter?: Filter<SportsGroups>,
+  ): Promise<{
+    records: SportsGroups[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.sportsGroupsRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.sportsGroupsRepository.count(where);
+    return {records: records, totalCount: totalCountData.count};
+  }
+
   @patch('/sports-groups')
   @response(200, {
     description: 'SportsGroups PATCH success count',
@@ -109,7 +132,8 @@ export class SportsGroupsController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(SportsGroups, {exclude: 'where'}) filter?: FilterExcludingWhere<SportsGroups>
+    @param.filter(SportsGroups, {exclude: 'where'})
+    filter?: FilterExcludingWhere<SportsGroups>,
   ): Promise<SportsGroups> {
     return this.sportsGroupsRepository.findById(id, filter);
   }

@@ -4,7 +4,6 @@ import {Entity, model, property} from '@loopback/repository';
   name: 'odds',
 })
 export class Odds extends Entity {
-
   @property({
     type: 'number',
     id: true,
@@ -16,7 +15,7 @@ export class Odds extends Entity {
     type: 'string',
     mysql: {
       columnName: 'eventId',
-    }
+    },
   })
   eventId: string;
 
@@ -44,7 +43,6 @@ export class Odds extends Entity {
     type: 'number',
   })
   oddsAwayPoint: number;
-
 
   @property({
     type: 'number',

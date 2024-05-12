@@ -1,11 +1,16 @@
-import {Entity, belongsTo, hasMany, model, property} from '@loopback/repository';
+import {
+  Entity,
+  belongsTo,
+  hasMany,
+  model,
+  property,
+} from '@loopback/repository';
 import {Users} from './users.model';
 
 @model({
   name: 'users_comments',
 })
 export class UsersComments extends Entity {
-
   @property({
     type: 'number',
     id: true,
@@ -50,13 +55,11 @@ export class UsersComments extends Entity {
 
   @property({
     type: 'number', // Default status for soft deletion
-
   })
   statusDeleted: number;
 
   @property({
     type: 'number', // Left position for nested comments
-
   })
   lft?: number;
 
@@ -82,7 +85,7 @@ export class UsersComments extends Entity {
 
 export interface UsersCommentsRelations {
   // describe navigational properties here
-  userCreated: Users
+  userCreated: Users;
 }
 
 export type UsersCommentsWithRelations = UsersComments & UsersCommentsRelations;

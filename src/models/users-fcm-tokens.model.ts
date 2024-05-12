@@ -45,11 +45,11 @@ export class UsersFcmTokens extends Entity {
   constructor(data?: Partial<UsersFcmTokens>) {
     super(data);
   }
-
 }
 
 export interface UsersFcmTokensRelations {
   // describe navigational properties here
 }
 
-export type UsersFcmTokensWithRelations = UsersFcmTokens & UsersFcmTokensRelations;
+export type UsersFcmTokensWithRelations = UsersFcmTokens &
+  UsersFcmTokensRelations;

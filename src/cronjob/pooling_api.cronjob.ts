@@ -13,7 +13,8 @@ export class PoolingApiJob {
 
   constructor(context: Context) {
     this.context = context;
-    this.apiKey = process.env.API_KEY_SPORT || '6c651451bdssae32293b8b865527583cc69a4';
+    this.apiKey =
+      process.env.API_KEY_SPORT || '6c651451bdssae32293b8b865527583cc69a4';
     this.client = axios.create({
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
@@ -21,61 +22,82 @@ export class PoolingApiJob {
     // this.getSports();
     // this.getMatchsEvents();
     // this.getScoresDumy();
-    cron.schedule('00 00 * * *', async () => {
-      await this.getSports();
-    }).start();
-    cron.schedule('30 00 * * *', async () => {
-      await this.getMatchsEvents();
-    }).start();
+    cron
+      .schedule('00 00 * * *', async () => {
+        await this.getSports();
+      })
+      .start();
+    cron
+      .schedule('30 00 * * *', async () => {
+        await this.getMatchsEvents();
+      })
+      .start();
 
-    cron.schedule('*/15 * * * *', async () => {
-      await this.getScores();
-    }).start();
+    cron
+      .schedule('*/15 * * * *', async () => {
+        await this.getScores();
+      })
+      .start();
   }
 
   private async getMatchsEvents() {
-    const eventsService = new EventsServices(this.context, this.client, this.apiKey);
+    const eventsService = new EventsServices(
+      this.context,
+      this.client,
+      this.apiKey,
+    );
     await eventsService.get();
   }
   private async getScores() {
-    const scoresService = new ScoresServices(this.context, this.client, this.apiKey);
+    const scoresService = new ScoresServices(
+      this.context,
+      this.client,
+      this.apiKey,
+    );
     await scoresService.get();
   }
 
   private async getSports() {
-    const sportsService = new SportsService(this.context, this.client, this.apiKey);
+    const sportsService = new SportsService(
+      this.context,
+      this.client,
+      this.apiKey,
+    );
     await sportsService.get();
   }
 
   private async getScoresDumy() {
-
-    var eventId = "0bd8a1c7bef8bd8c4cf0696d504220a8"
-    var data = [{
-      "id": eventId,
-      "sport_key": "basketball_nba",
-      "sport_title": "NBA",
-      "commence_time": "2022-02-06T03:10:38Z",
-      "completed": true,
-      "home_team": "Sacramento Kings",
-      "away_team": "Oklahoma City Thunder",
-      "scores": [
-        {
-          "name": "Sacramento Kings",
-          "score": "205"
-        },
-        {
-          "name": "Oklahoma City Thunder",
-          "score": "208"
-        }
-      ],
-      "last_update": "2022-02-06T05:18:19Z"
-    }];
-    const scoresService = new ScoresServices(this.context, this.client, this.apiKey);
+    var eventId = '0bd8a1c7bef8bd8c4cf0696d504220a8';
+    var data = [
+      {
+        id: eventId,
+        sport_key: 'basketball_nba',
+        sport_title: 'NBA',
+        commence_time: '2022-02-06T03:10:38Z',
+        completed: true,
+        home_team: 'Sacramento Kings',
+        away_team: 'Oklahoma City Thunder',
+        scores: [
+          {
+            name: 'Sacramento Kings',
+            score: '205',
+          },
+          {
+            name: 'Oklahoma City Thunder',
+            score: '208',
+          },
+        ],
+        last_update: '2022-02-06T05:18:19Z',
+      },
+    ];
+    const scoresService = new ScoresServices(
+      this.context,
+      this.client,
+      this.apiKey,
+    );
     for (var i = 0; i <= 10; i++) {
       console.log(`POOLING DATA : ${i}`);
-      await scoresService.pool(Object.values(data)
-        , eventId, "");
+      await scoresService.pool(Object.values(data), eventId, '');
     }
   }
-
 }

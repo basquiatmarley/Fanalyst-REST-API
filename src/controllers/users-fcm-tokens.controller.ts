@@ -1,7 +1,7 @@
 import {TokenService, authenticate} from '@loopback/authentication';
 import {
   UserRepository as JWTUserRepository,
-  TokenServiceBindings
+  TokenServiceBindings,
 } from '@loopback/authentication-jwt';
 import {inject} from '@loopback/core';
 import {
@@ -27,7 +27,6 @@ import {SecurityBindings, UserProfile, securityId} from '@loopback/security';
 import {UsersFcmTokens} from '../models';
 import {UsersFcmTokensRepository} from '../repositories';
 
-
 @authenticate('jwt')
 export class UsersFcmTokensController {
   constructor(
@@ -35,10 +34,11 @@ export class UsersFcmTokensController {
     public jwtService: TokenService,
     @inject(SecurityBindings.USER, {optional: true})
     public user: UserProfile,
-    @repository(JWTUserRepository) protected jwtUserRepository: JWTUserRepository,
+    @repository(JWTUserRepository)
+    protected jwtUserRepository: JWTUserRepository,
     @repository(UsersFcmTokensRepository)
     public usersFcmTokensRepository: UsersFcmTokensRepository,
-  ) { }
+  ) {}
 
   @authenticate('jwt')
   @post('/users-fcm-tokens')
@@ -65,21 +65,20 @@ export class UsersFcmTokensController {
     usersFcmTokens.userId = uId;
     const findOne = await this.usersFcmTokensRepository.findOne({
       where: {
-        and: [
-          {userId: uId},
-          {token: usersFcmTokens.token}
-        ]
-      }
+        and: [{userId: uId}, {token: usersFcmTokens.token}],
+      },
     });
     var usersFcmTokensSaved: UsersFcmTokens;
     if (!findOne) {
-      usersFcmTokensSaved = await this.usersFcmTokensRepository.create(usersFcmTokens);
+      usersFcmTokensSaved =
+        await this.usersFcmTokensRepository.create(usersFcmTokens);
     } else {
       var date = new Date();
-      await this.usersFcmTokensRepository.updateById(findOne.id, {updatedAt: date});
+      await this.usersFcmTokensRepository.updateById(findOne.id, {
+        updatedAt: date,
+      });
       findOne.updatedAt = date;
       usersFcmTokensSaved = findOne;
-
     }
     return usersFcmTokensSaved;
   }
@@ -103,12 +102,15 @@ export class UsersFcmTokensController {
         },
       },
     })
-    request: {oldToken: string, newToken: string, },
+    request: {oldToken: string; newToken: string},
   ): Promise<UsersFcmTokens> {
     const uId: number = Number(currentUserProfile[securityId]);
-    await this.usersFcmTokensRepository.updateAll({
-      status: 2
-    }, {userId: uId, token: request.oldToken});
+    await this.usersFcmTokensRepository.updateAll(
+      {
+        status: 2,
+      },
+      {userId: uId, token: request.oldToken},
+    );
     const usersFcmTokensSaved = {
       userId: uId,
       status: 1,
@@ -141,11 +143,14 @@ export class UsersFcmTokensController {
     request: {token: string},
   ): Promise<{message: string}> {
     const uId: number = Number(currentUserProfile[securityId]);
-    await this.usersFcmTokensRepository.updateAll({
-      status: 2
-    }, {userId: uId, token: request.token});
+    await this.usersFcmTokensRepository.updateAll(
+      {
+        status: 2,
+      },
+      {userId: uId, token: request.token},
+    );
 
-    return {message: "success"};
+    return {message: 'success'};
   }
 
   @get('/users-fcm-tokens/count')
@@ -207,7 +212,8 @@ export class UsersFcmTokensController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(UsersFcmTokens, {exclude: 'where'}) filter?: FilterExcludingWhere<UsersFcmTokens>
+    @param.filter(UsersFcmTokens, {exclude: 'where'})
+    filter?: FilterExcludingWhere<UsersFcmTokens>,
   ): Promise<UsersFcmTokens> {
     return this.usersFcmTokensRepository.findById(id, filter);
   }

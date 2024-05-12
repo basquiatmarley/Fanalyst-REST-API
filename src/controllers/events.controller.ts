@@ -27,7 +27,7 @@ export class EventsController {
   constructor(
     @repository(EventsRepository)
     public eventsRepository: EventsRepository,
-  ) { }
+  ) {}
 
   @post('/events')
   @response(200, {
@@ -55,9 +55,7 @@ export class EventsController {
     description: 'Events model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Events) where?: Where<Events>,
-  ): Promise<Count> {
+  async count(@param.where(Events) where?: Where<Events>): Promise<Count> {
     return this.eventsRepository.count(where);
   }
 
@@ -83,7 +81,7 @@ export class EventsController {
     if (finalFilter?.order != null) {
       if (Array.isArray(finalFilter?.order)) {
         var orderFilter = finalFilter.order;
-        if (orderFilter[0] == "RAND") {
+        if (orderFilter[0] == 'RAND') {
           randomCreated = true;
           limitShowRandom = +orderFilter[1];
 
@@ -99,9 +97,29 @@ export class EventsController {
       return shuffled.slice(0, limitShowRandom);
     }
 
-
-
     return datas;
+  }
+
+  @get('/events/pagination')
+  @response(200, {
+    description: 'Array of Events model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Events, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findPagination(@param.filter(Events) filter?: Filter<Events>): Promise<{
+    records: Events[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.eventsRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.eventsRepository.count(where);
+    return {records: records, totalCount: totalCountData.count};
   }
 
   @patch('/events')
@@ -134,7 +152,8 @@ export class EventsController {
   })
   async findById(
     @param.path.string('id') id: string,
-    @param.filter(Events, {exclude: 'where'}) filter?: FilterExcludingWhere<Events>
+    @param.filter(Events, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Events>,
   ): Promise<Events> {
     return this.eventsRepository.findById(id, filter);
   }

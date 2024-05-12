@@ -23,13 +23,12 @@ import {genSalt, hash} from 'bcryptjs';
 import {Users} from '../models';
 import {UsersRepository} from '../repositories';
 
-
 @authenticate('jwt')
 export class UsersController {
   constructor(
     @repository(UsersRepository)
     public usersRepository: UsersRepository,
-  ) { }
+  ) {}
 
   @post('/users')
   @response(200, {
@@ -42,17 +41,29 @@ export class UsersController {
         'application/json': {
           schema: getModelSchemaRef(Users, {
             title: 'NewUser',
-            exclude: ['id', 'statusDeleted', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusDeleted'],
+            exclude: [
+              'id',
+              'statusDeleted',
+              'createdAt',
+              'createdBy',
+              'updatedAt',
+              'updatedBy',
+              'statusDeleted',
+            ],
           }),
         },
       },
     })
     user: Omit<Users, 'id'>,
   ): Promise<Users> {
-    const existingUser = await this.usersRepository.findOne({where: {email: user.email}});
+    const existingUser = await this.usersRepository.findOne({
+      where: {email: user.email},
+    });
 
     if (existingUser) {
-      throw new HttpErrors.Conflict(`User with email ${user.email} already exists`);
+      throw new HttpErrors.Conflict(
+        `User with email ${user.email} already exists`,
+      );
     }
 
     user.password = await hash(user.password, await genSalt());
@@ -64,9 +75,7 @@ export class UsersController {
     description: 'User model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Users) where?: Where<Users>,
-  ): Promise<Count> {
+  async count(@param.where(Users) where?: Where<Users>): Promise<Count> {
     return this.usersRepository.count(where);
   }
 
@@ -82,10 +91,30 @@ export class UsersController {
       },
     },
   })
-  async find(
-    @param.filter(Users) filter?: Filter<Users>,
-  ): Promise<Users[]> {
+  async find(@param.filter(Users) filter?: Filter<Users>): Promise<Users[]> {
     return this.usersRepository.find(filter);
+  }
+
+  @get('/users/pagination')
+  @response(200, {
+    description: 'Array of User pagination model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Users, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findPagination(@param.filter(Users) filter?: Filter<Users>): Promise<{
+    records: Users[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.usersRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.usersRepository.count(where);
+    return {records: records, totalCount: totalCountData.count};
   }
 
   @patch('/users')
@@ -118,7 +147,8 @@ export class UsersController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Users, {exclude: 'where'}) filter?: FilterExcludingWhere<Users>
+    @param.filter(Users, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Users>,
   ): Promise<Users> {
     return this.usersRepository.findById(id, filter);
   }
@@ -132,7 +162,7 @@ export class UsersController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {partial: true, }),
+          schema: getModelSchemaRef(Users, {partial: true}),
         },
       },
     })
@@ -154,21 +184,21 @@ export class UsersController {
     @requestBody({
       content: {
         'application/json': {
-          schema: getModelSchemaRef(Users, {partial: true, }),
+          schema: getModelSchemaRef(Users, {partial: true}),
         },
       },
-    }) userData: Users,
+    })
+    userData: Users,
   ): Promise<Users> {
     const existingUser = await this.usersRepository.findOne({
       where: {
-        and: [
-          {email: userData.email},
-          {id: {neq: id}},
-        ]
-      }
+        and: [{email: userData.email}, {id: {neq: id}}],
+      },
     });
     if (existingUser) {
-      throw new HttpErrors.Conflict(`User with email ${userData.email} already exists`);
+      throw new HttpErrors.Conflict(
+        `User with email ${userData.email} already exists`,
+      );
     }
 
     if (userData.password != undefined && userData.password != '') {

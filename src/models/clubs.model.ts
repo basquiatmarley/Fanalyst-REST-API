@@ -5,7 +5,6 @@ import {SportsGroups} from './sports-groups.model';
   name: 'clubs',
 })
 export class Clubs extends Entity {
-
   @property({
     type: 'number',
     id: true,
@@ -62,12 +61,11 @@ export class Clubs extends Entity {
   constructor(data?: Partial<Clubs>) {
     super(data); // Initialize the model with given data
   }
-
 }
 
 export interface ClubsRelations {
   // describe navigational properties here
-  sportsGroup?: ClubsWithRelations
+  sportsGroup?: ClubsWithRelations;
 }
 
 export type ClubsWithRelations = Clubs & ClubsRelations;

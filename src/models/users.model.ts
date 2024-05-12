@@ -2,7 +2,7 @@ import {Entity, model, property} from '@loopback/repository';
 
 @model({
   name: 'users',
-  settings: {strict: true}
+  settings: {strict: true},
 })
 export class Users extends Entity {
   @property({
@@ -94,7 +94,6 @@ export class Users extends Entity {
   })
   otp: string | '';
 
-
   @property({
     type: 'date',
   })
@@ -119,7 +118,6 @@ export class Users extends Entity {
   constructor(data?: Partial<Users>) {
     super(data);
   }
-
 }
 
 export interface UsersRelations {

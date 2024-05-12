@@ -91,7 +91,8 @@ export class UsersPredictionsSummaries extends Entity {
 }
 
 export interface UsersPredictionsSummariesRelations {
-  user: Users,
+  user: Users;
 }
 
-export type UsersPredictionsSummariesWithRelations = UsersPredictionsSummaries & UsersPredictionsSummariesRelations;
+export type UsersPredictionsSummariesWithRelations = UsersPredictionsSummaries &
+  UsersPredictionsSummariesRelations;

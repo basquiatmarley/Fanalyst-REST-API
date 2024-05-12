@@ -8,9 +8,7 @@ export class UsersRepository extends SequelizeCrudRepository<
   typeof Users.prototype.id,
   UsersRelations
 > {
-  constructor(
-    @inject('datasources.mysqldb') dataSource: MysqldbDataSource,
-  ) {
+  constructor(@inject('datasources.mysqldb') dataSource: MysqldbDataSource) {
     super(Users, dataSource);
   }
 }

@@ -26,7 +26,7 @@ export class SportsController {
   constructor(
     @repository(SportsRepository)
     public sportsRepository: SportsRepository,
-  ) { }
+  ) {}
 
   @post('/sports')
   @response(200, {
@@ -54,9 +54,7 @@ export class SportsController {
     description: 'Sports model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Sports) where?: Where<Sports>,
-  ): Promise<Count> {
+  async count(@param.where(Sports) where?: Where<Sports>): Promise<Count> {
     return this.sportsRepository.count(where);
   }
 
@@ -72,11 +70,30 @@ export class SportsController {
       },
     },
   })
-  async find(
-    @param.filter(Sports) filter?: Filter<Sports>,
-  ): Promise<Sports[]> {
-
+  async find(@param.filter(Sports) filter?: Filter<Sports>): Promise<Sports[]> {
     return this.sportsRepository.find(filter);
+  }
+
+  @get('/sports/pagination')
+  @response(200, {
+    description: 'Array of pagination Sports model instances',
+    content: {
+      'application/json': {
+        schema: {
+          type: 'array',
+          items: getModelSchemaRef(Sports, {includeRelations: true}),
+        },
+      },
+    },
+  })
+  async findPagination(@param.filter(Sports) filter?: Filter<Sports>): Promise<{
+    records: Sports[];
+    totalCount: number | 0;
+  }> {
+    var records = await this.sportsRepository.find(filter);
+    var where = filter?.where; //UNSET LIMIT FROM FILTER
+    var totalCountData = await this.sportsRepository.count(where);
+    return {records: records, totalCount: totalCountData.count};
   }
 
   @patch('/sports')
@@ -109,7 +126,8 @@ export class SportsController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Sports, {exclude: 'where'}) filter?: FilterExcludingWhere<Sports>
+    @param.filter(Sports, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Sports>,
   ): Promise<Sports> {
     return this.sportsRepository.findById(id, filter);
   }

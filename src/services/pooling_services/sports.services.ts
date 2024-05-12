@@ -1,6 +1,10 @@
 import {Context} from '@loopback/core';
 import {AxiosInstance} from 'axios';
-import {PoolingRequestsRepository, SportsGroupsRepository, SportsRepository} from '../../repositories';
+import {
+  PoolingRequestsRepository,
+  SportsGroupsRepository,
+  SportsRepository,
+} from '../../repositories';
 class SportsService {
   private context: Context;
   private apiKey: String;
@@ -13,18 +17,26 @@ class SportsService {
   }
 
   async get(): Promise<void> {
-    console.log("EXECUTE GET Sports");
-    const poolingRequestRepository = await this.context.get<PoolingRequestsRepository>('repositories.PoolingRequestsRepository');
-    const sportsGroupsRepository = await this.context.get<SportsGroupsRepository>('repositories.SportsGroupsRepository');
-    const sportsRepository = await this.context.get<SportsRepository>('repositories.SportsRepository');
+    console.log('EXECUTE GET Sports');
+    const poolingRequestRepository =
+      await this.context.get<PoolingRequestsRepository>(
+        'repositories.PoolingRequestsRepository',
+      );
+    const sportsGroupsRepository =
+      await this.context.get<SportsGroupsRepository>(
+        'repositories.SportsGroupsRepository',
+      );
+    const sportsRepository = await this.context.get<SportsRepository>(
+      'repositories.SportsRepository',
+    );
     const now = new Date().toISOString();
 
     const url = `sports?apiKey=${this.apiKey}&all=true`;
     const poolingDataSaved = await poolingRequestRepository.create({
       urlRequest: url,
-      type: "sports",
+      type: 'sports',
     });
-    let responseMsg = "";
+    let responseMsg = '';
 
     try {
       const response = await this.client.get(url);
@@ -43,7 +55,7 @@ class SportsService {
                 title: dataSport.group.trim(),
                 statusHotest: 1,
                 status: 1,
-                imageUrl: "",
+                imageUrl: '',
                 createdAt: now,
                 updatedAt: now,
               });
@@ -59,7 +71,7 @@ class SportsService {
                 title: dataSport.title.trim(),
                 status: dataSport.active,
                 key: dataSport.key.trim(),
-                imageUrl: "",
+                imageUrl: '',
                 createdAt: now,
                 updatedAt: now,
               });
@@ -78,10 +90,10 @@ class SportsService {
             }
           }
         } else {
-          responseMsg += "**RESULT POOLING EMPTY**";
+          responseMsg += '**RESULT POOLING EMPTY**';
         }
       } else {
-        responseMsg += "**GET REQUEST ERROR**";
+        responseMsg += '**GET REQUEST ERROR**';
       }
     } catch (e) {
       if (e.response) {
@@ -98,4 +110,4 @@ class SportsService {
   }
 }
 
-export default SportsService
+export default SportsService;

@@ -21,13 +21,12 @@ import {
 import {Scores} from '../models';
 import {ScoresRepository} from '../repositories';
 
-
 @authenticate('jwt')
 export class ScoresController {
   constructor(
     @repository(ScoresRepository)
     public scoresRepository: ScoresRepository,
-  ) { }
+  ) {}
 
   @post('/scores')
   @response(200, {
@@ -55,9 +54,7 @@ export class ScoresController {
     description: 'Scores model count',
     content: {'application/json': {schema: CountSchema}},
   })
-  async count(
-    @param.where(Scores) where?: Where<Scores>,
-  ): Promise<Count> {
+  async count(@param.where(Scores) where?: Where<Scores>): Promise<Count> {
     return this.scoresRepository.count(where);
   }
 
@@ -73,9 +70,7 @@ export class ScoresController {
       },
     },
   })
-  async find(
-    @param.filter(Scores) filter?: Filter<Scores>,
-  ): Promise<Scores[]> {
+  async find(@param.filter(Scores) filter?: Filter<Scores>): Promise<Scores[]> {
     return this.scoresRepository.find(filter);
   }
 
@@ -109,7 +104,8 @@ export class ScoresController {
   })
   async findById(
     @param.path.number('id') id: number,
-    @param.filter(Scores, {exclude: 'where'}) filter?: FilterExcludingWhere<Scores>
+    @param.filter(Scores, {exclude: 'where'})
+    filter?: FilterExcludingWhere<Scores>,
   ): Promise<Scores> {
     return this.scoresRepository.findById(id, filter);
   }
