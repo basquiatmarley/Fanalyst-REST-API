@@ -17,7 +17,7 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {compare, genSalt, hash} from 'bcryptjs';
 import {randomBytes, randomUUID} from 'crypto';
-import * as admin from 'firebase-admin';
+import {OAuth2Client} from 'google-auth-library';
 import {Users, UsersRelations} from '../models';
 import {UsersRepository} from '../repositories';
 import {EMAIL_SERVICE, EmailService} from '../services/mailers.service';
@@ -100,11 +100,20 @@ export class AuthController {
 
     var validateToken = true;
     if (request.type == "GOOGLE") {
-      console.log(request.idToken);
       try {
-        var getVerify = await admin.auth().verifyIdToken(request.idToken.trim());
-        console.log(getVerify);
-
+        // var getVerify = await admin.auth().verifyIdToken(request.idToken.trim(),);
+        // console.log(getVerify);
+        const client = new OAuth2Client("547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com");
+        const ticket = await client.verifyIdToken({
+          idToken: request.idToken,
+          audience: "547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com",
+        });
+        const payload = ticket.getPayload();
+        console.log(payload);
+        if (payload != undefined) {
+          // const userId = payload['sub'];
+          validateToken = true
+        }
       } catch (e) {
         console.log(e);
       }
