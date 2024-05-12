@@ -5,7 +5,7 @@ import {
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
   del,
@@ -26,7 +26,7 @@ export class ClubsController {
   constructor(
     @repository(ClubsRepository)
     public clubsRepository: ClubsRepository,
-  ) {}
+  ) { }
 
   @post('/clubs')
   @response(200, {
@@ -91,8 +91,7 @@ export class ClubsController {
     totalCount: number | 0;
   }> {
     var records = await this.clubsRepository.find(filter);
-    var where = filter?.where; //UNSET LIMIT FROM FILTER
-    var totalCountData = await this.clubsRepository.count(where);
+    const totalCountData = await this.clubsRepository.count(filter?.where, {include: filter?.include});
     return {records: records, totalCount: totalCountData.count};
   }
 

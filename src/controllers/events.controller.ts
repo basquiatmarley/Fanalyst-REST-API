@@ -27,7 +27,7 @@ export class EventsController {
   constructor(
     @repository(EventsRepository)
     public eventsRepository: EventsRepository,
-  ) {}
+  ) { }
 
   @post('/events')
   @response(200, {
@@ -118,7 +118,7 @@ export class EventsController {
   }> {
     var records = await this.eventsRepository.find(filter);
     var where = filter?.where; //UNSET LIMIT FROM FILTER
-    var totalCountData = await this.eventsRepository.count(where);
+    var totalCountData = await this.eventsRepository.count(where, {include: filter?.include});
     return {records: records, totalCount: totalCountData.count};
   }
 

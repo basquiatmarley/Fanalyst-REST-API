@@ -26,7 +26,7 @@ export class SportsController {
   constructor(
     @repository(SportsRepository)
     public sportsRepository: SportsRepository,
-  ) {}
+  ) { }
 
   @post('/sports')
   @response(200, {
@@ -92,7 +92,7 @@ export class SportsController {
   }> {
     var records = await this.sportsRepository.find(filter);
     var where = filter?.where; //UNSET LIMIT FROM FILTER
-    var totalCountData = await this.sportsRepository.count(where);
+    var totalCountData = await this.sportsRepository.count(where, {include: filter?.include});
     return {records: records, totalCount: totalCountData.count};
   }
 
