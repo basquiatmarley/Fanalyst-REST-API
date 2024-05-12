@@ -98,24 +98,29 @@ export class AuthController {
     request: {email: string, name: string, imageUrl: string | '', idToken: string, type: string},
   ): Promise<{token: string, userData: Users & UsersRelations}> {
 
-    var validateToken = true;
+    var validateToken = false;
     if (request.type == "GOOGLE") {
       try {
-        // var getVerify = await admin.auth().verifyIdToken(request.idToken.trim(),);
-        // console.log(getVerify);
-        const client = new OAuth2Client("547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com");
+        const clientId = [
+          "547688133294-d6796j2jnlg52re5hu06u7lm2r4a4bpo.apps.googleusercontent.com",
+          "547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com",
+        ];
+        const client = new OAuth2Client();
         const ticket = await client.verifyIdToken({
           idToken: request.idToken,
-          audience: "547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com",
+          audience: clientId,
+
         });
         const payload = ticket.getPayload();
-        console.log(payload);
-        if (payload != undefined) {
-          // const userId = payload['sub'];
-          validateToken = true
+        if (payload?.sub != null) {
+          validateToken = true;
         }
+        // // if (payload?.sub != null) {
+        //   // const userId = payload['sub'];
+        //   validateToken = true
+        // }
       } catch (e) {
-        console.log(e);
+        console.log(`ERROR VERIFID TOKEN : ${e}`);
       }
 
       //NEED VERIFY ID TOKEN
