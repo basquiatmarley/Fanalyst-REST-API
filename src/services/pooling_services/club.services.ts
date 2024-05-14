@@ -1,5 +1,5 @@
 import {Context} from '@loopback/core';
-import {AxiosInstance} from 'axios';
+import axios, {AxiosInstance} from 'axios';
 import {Clubs} from '../../models';
 import {
   ClubsRepository,
@@ -7,13 +7,13 @@ import {
 } from '../../repositories';
 class ClubService {
   private context: Context;
-  private apiKey: String;
-  private client: AxiosInstance;
-
-  constructor(context: Context, client: AxiosInstance, apiKey: String) {
+  private clientAxios: AxiosInstance;
+  constructor(context: Context) {
     this.context = context;
-    this.apiKey = apiKey;
-    this.client = client;
+    this.clientAxios = axios.create({
+      baseURL: 'https://www.thesportsdb.com/api', // Base URL for your API
+      timeout: 5000, // Set a request timeout
+    });
   }
 
   async get(): Promise<void> {
@@ -34,7 +34,6 @@ class ClubService {
       }
     })
 
-    this.client.defaults.baseURL = 'https://www.thesportsdb.com/api';
     for (const club of clubs) {
       var poolingDataSaved = await poolingRequestRepository.create({
         urlRequest: `https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${club.name}`,
@@ -119,7 +118,7 @@ class ClubService {
     var getData = true;
     responseMsg += `**TRYING TO GET CLUB NAME : ${clubName}**`;
     try {
-      var response = await this.client.get(url);
+      var response = await this.clientAxios.get(url);
       if (response.data != null) {
         if (response.data.teams != null) {
           const teams = response.data.teams[0];

@@ -21,7 +21,7 @@ export class PoolingApiJob {
       timeout: 5000, // Set a request timeout
     });
 
-    this.clubsUpdateImage();
+    // this.clubsUpdateImage();
     // this.getScores();
     // this.getMatchsEvents();
     // this.getScoresDumy();
@@ -31,7 +31,7 @@ export class PoolingApiJob {
       })
       .start();
     cron
-      .schedule('* * * * *', async () => {
+      .schedule('40 * * * *', async () => {
         await this.clubsUpdateImage();
       })
       .start();
@@ -112,8 +112,6 @@ export class PoolingApiJob {
   private async clubsUpdateImage() {
     const clubService = new ClubsService(
       this.context,
-      this.client,
-      this.apiKey,
     );
     await clubService.get();
   }

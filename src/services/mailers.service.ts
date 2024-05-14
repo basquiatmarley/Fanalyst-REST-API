@@ -7,9 +7,11 @@ export class EmailService {
   constructor() {
     this.transporter = nodemailer.createTransport({
       service: 'gmail', // Use Gmail SMTP service
+
       auth: {
-        user: process.env.GMAIL_USER || 'batcrew38@gmail.com', // Your Gmail address
-        pass: process.env.GMAIL_APP_PASSWORD || 'dzte zimh fvjn olfj', // App Password for Gmail
+
+        user: process.env.GMAIL_USER || 'noreplyfanalyst@gmail.com', // Your Gmail address
+        pass: process.env.GMAIL_APP_PASSWORD || 'msgk zhtm ypvk jfko', // App Password for Gmail
       },
     });
   }
