@@ -2,6 +2,7 @@ import {Context} from '@loopback/core';
 import axios, {AxiosInstance} from 'axios';
 import cron from 'node-cron';
 
+import ClubsService from '../services/pooling_services/club.services';
 import EventsServices from '../services/pooling_services/events.services';
 import ScoresServices from '../services/pooling_services/scores.services';
 import SportsService from '../services/pooling_services/sports.services';
@@ -19,12 +20,19 @@ export class PoolingApiJob {
       baseURL: 'https://api.the-odds-api.com/v4/', // Base URL for your API
       timeout: 5000, // Set a request timeout
     });
-    this.getScores();
+
+    this.clubsUpdateImage();
+    // this.getScores();
     // this.getMatchsEvents();
     // this.getScoresDumy();
     cron
       .schedule('00 00 * * *', async () => {
         await this.getSports();
+      })
+      .start();
+    cron
+      .schedule('* * * * *', async () => {
+        await this.clubsUpdateImage();
       })
       .start();
     cron
@@ -99,5 +107,14 @@ export class PoolingApiJob {
       console.log(`POOLING DATA : ${i}`);
       await scoresService.pool(Object.values(data), eventId, '');
     }
+  }
+
+  private async clubsUpdateImage() {
+    const clubService = new ClubsService(
+      this.context,
+      this.client,
+      this.apiKey,
+    );
+    await clubService.get();
   }
 }
