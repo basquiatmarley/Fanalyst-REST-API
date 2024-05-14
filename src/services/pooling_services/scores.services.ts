@@ -36,8 +36,15 @@ class ScoresServices {
     const events = await eventsRepository.find({
       // "limit": 30,
       where: {
-        commenceTime: {lt: now},
-        completed: 0,
+        or: [
+          {
+            commenceTime: {lt: now},
+            completed: 0,
+          },
+          {
+            winner: 0,
+          }
+        ]
       },
       include: [
         {
