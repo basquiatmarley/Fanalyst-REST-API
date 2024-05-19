@@ -18,7 +18,7 @@ export class NotificationService {
     public usersPredictionRepository: UsersPredictionsRepository,
     @inject('services.FirebaseAdminService')
     private firebaseAdminService: FirebaseAdminService,
-  ) {}
+  ) { }
 
   async create(
     userId: number,

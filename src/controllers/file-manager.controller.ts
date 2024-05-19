@@ -23,7 +23,7 @@ export class FileManagerController {
    */
   constructor(
     @inject(FILE_UPLOAD_SERVICE) private handler: FileUploadHandler,
-  ) {}
+  ) { }
 
   @post('/files/upload', {
     responses: {

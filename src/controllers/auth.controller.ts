@@ -32,7 +32,7 @@ export class AuthController {
     @repository(JWTUserRepository)
     protected jwtUserRepository: JWTUserRepository,
     @repository(UsersRepository) protected usersRepository: UsersRepository,
-  ) {}
+  ) { }
 
   @post('/auth/login')
   @response(200, {
@@ -137,8 +137,9 @@ export class AuthController {
     if (request.type == 'GOOGLE') {
       try {
         const clientId = [
-          '547688133294-d6796j2jnlg52re5hu06u7lm2r4a4bpo.apps.googleusercontent.com',
-          '547688133294-5mes9stlriso8hk7ed2i2s1e1h3olc6c.apps.googleusercontent.com',
+          '104706451517-5l8k8f4krp1a8ab3b7c9cuedeb8uiudc.apps.googleusercontent.com',
+          '104706451517-bpo0ca1oun9t22ain7gq84l3b169qve2.apps.googleusercontent.com',
+          '104706451517-5l8k8f4krp1a8ab3b7c9cuedeb8uiudc.apps.googleusercontent.com',
         ];
         const client = new OAuth2Client();
         const ticket = await client.verifyIdToken({
