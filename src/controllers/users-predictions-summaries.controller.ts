@@ -9,7 +9,7 @@ export class UsersPredictionsSummariesController {
   constructor(
     @repository(UsersPredictionsSummariesRepository)
     public usersPredictionsSummariesRepository: UsersPredictionsSummariesRepository,
-  ) {}
+  ) { }
 
   @get('/users-predictions-summaries')
   @response(200, {
@@ -63,7 +63,7 @@ export class UsersPredictionsSummariesController {
     data: UsersPredictionsSummaries | null;
   }> {
     var sql =
-      'SELECT row_position FROM( SELECT userId, ROW_NUMBER() OVER(ORDER BY longestWinStreak DESC) AS row_position FROM users_predictions_summaries WHERE `month` = ? AND `year` = ?) AS subquery WHERE userId = ? ';
+      'SELECT row_position FROM( SELECT userId, ROW_NUMBER() OVER(ORDER BY longestWinStreak DESC, (correct / countPrediction * 100) DESC ) AS row_position FROM users_predictions_summaries WHERE `month` = ? AND `year` = ?) AS subquery WHERE userId = ? ';
     var date = new Date();
     var month = date.getMonth() + 1;
     var year = date.getFullYear();
