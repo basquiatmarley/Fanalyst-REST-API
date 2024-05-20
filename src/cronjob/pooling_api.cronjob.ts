@@ -1,11 +1,11 @@
 import {Context} from '@loopback/core';
 import axios, {AxiosInstance} from 'axios';
 
+import cron from 'node-cron';
 import ClubsService from '../services/pooling_services/club.services';
 import EventsServices from '../services/pooling_services/events.services';
 import ScoresServices from '../services/pooling_services/scores.services';
 import SportsService from '../services/pooling_services/sports.services';
-
 export class PoolingApiJob {
   private context: Context;
   private apiKey: String;
@@ -24,27 +24,27 @@ export class PoolingApiJob {
     // this.getScores();
     // this.getMatchsEvents();
     // this.getScoresDumy();
-    // cron
-    //   .schedule('00 00 * * *', async () => {
-    //     await this.getSports();
-    //   })
-    //   .start();
-    // cron
-    //   .schedule('40 * * * *', async () => {
-    //     await this.clubsUpdateImage();
-    //   })
-    //   .start();
-    // cron
-    //   .schedule('30 00 * * *', async () => {
-    //     await this.getMatchsEvents();
-    //   })
-    //   .start();
+    cron
+      .schedule('00 00 * * *', async () => {
+        await this.getSports();
+      })
+      .start();
+    cron
+      .schedule('40 * * * *', async () => {
+        await this.clubsUpdateImage();
+      })
+      .start();
+    cron
+      .schedule('30 00 * * *', async () => {
+        await this.getMatchsEvents();
+      })
+      .start();
 
-    // cron
-    //   .schedule('*/15 * * * *', async () => {
-    //     await this.getScores();
-    //   })
-    //   .start();
+    cron
+      .schedule('*/30 * * * *', async () => {
+        await this.getScores();
+      })
+      .start();
   }
 
   private async getMatchsEvents() {
