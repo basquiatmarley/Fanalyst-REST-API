@@ -27,6 +27,7 @@ export * from './users-predictions-summaries.controller';
 export * from './users-predictions.controller';
 export * from './users.controller';
 
-export * from './users-notifications.controller';
-export * from './users-fcm-tokens.controller';
 export * from './banners.controller';
+export * from './users-fcm-tokens.controller';
+export * from './users-notifications.controller';
+

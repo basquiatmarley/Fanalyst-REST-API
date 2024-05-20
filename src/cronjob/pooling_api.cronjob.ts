@@ -4,6 +4,7 @@ import axios, {AxiosInstance} from 'axios';
 import cron from 'node-cron';
 import ClubsService from '../services/pooling_services/club.services';
 import EventsServices from '../services/pooling_services/events.services';
+import FcmUpdateService from '../services/pooling_services/fcm_update.services';
 import ScoresServices from '../services/pooling_services/scores.services';
 import SportsService from '../services/pooling_services/sports.services';
 export class PoolingApiJob {
@@ -24,6 +25,7 @@ export class PoolingApiJob {
     // this.getScores();
     // this.getMatchsEvents();
     // this.getScoresDumy();
+    // this.updateUnusedFcm();
     cron
       .schedule('00 00 * * *', async () => {
         await this.getSports();
@@ -43,6 +45,11 @@ export class PoolingApiJob {
     cron
       .schedule('*/30 * * * *', async () => {
         await this.getScores();
+      })
+      .start();
+    cron
+      .schedule('50 * * * *', async () => {
+        await this.updateUnusedFcm();
       })
       .start();
   }
@@ -113,5 +120,12 @@ export class PoolingApiJob {
       this.context,
     );
     await clubService.get();
+  }
+
+  private async updateUnusedFcm() {
+    const fcmUpdateService = new FcmUpdateService(
+      this.context,
+    );
+    await fcmUpdateService.get();
   }
 }

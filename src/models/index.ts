@@ -13,6 +13,7 @@ export * from './users-predictions.model';
 export * from './users-predictions-summaries-all-times.model';
 export * from './users-predictions-summaries.model';
 
-export * from './users-notifications.model';
-export * from './users-fcm-tokens.model';
 export * from './banner.model';
+export * from './users-fcm-tokens.model';
+export * from './users-notifications.model';
+
