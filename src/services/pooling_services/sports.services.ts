@@ -69,7 +69,7 @@ class SportsService {
               await sportsRepository.create({
                 sportsGroupId: getSportsGroup?.id,
                 title: dataSport.title.trim(),
-                // status: dataSport.active,
+                status: dataSport.active,
                 key: dataSport.key.trim(),
                 imageUrl: '',
                 createdAt: now,
@@ -81,7 +81,7 @@ class SportsService {
               await sportsRepository.updateById(getSport.id, {
                 sportsGroupId: getSportsGroup?.id,
                 title: dataSport.title.trim(),
-                status: dataSport.active,
+                // status: dataSport.active,
                 key: dataSport.key.trim(),
                 updatedAt: now,
               });
