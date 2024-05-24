@@ -63,7 +63,7 @@ export class UsersPredictionsSummariesAtsController {
     data: UsersPredictionsSummariesAts | null;
   }> {
     var sql =
-      'SELECT row_position,longestWinStreak,statusWinStreak FROM( SELECT userId,longestWinStreak,statusWinStreak, ROW_NUMBER() OVER(ORDER BY longestWinStreak DESC,(correct / countPrediction * 100) DESC) AS row_position FROM users_predictions_all_times) AS subquery WHERE userId = ? ';
+      'SELECT row_position,longestWinStreak,statusWinStreak FROM( SELECT userId,longestWinStreak,statusWinStreak, ROW_NUMBER() OVER(ORDER BY longestWinStreak DESC, percentageWin DESC) AS row_position FROM users_predictions_all_times) AS subquery WHERE userId = ? ';
     var date = new Date();
     var month = date.getMonth() + 1;
     var year = date.getFullYear();

@@ -70,6 +70,12 @@ export class UsersPredictionsSummariesAts extends Entity {
   })
   statusLoseStreak: number;
 
+  @property({
+    type: 'number',
+    default: 0,
+  })
+  percentageWin: number;
+
   @belongsTo(() => Users)
   userId: number;
 

@@ -47,6 +47,8 @@ export class FanalystApiLbApplication extends BootMixin(
     );
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccountPath),
+      projectId: 'com-fanalyst-app',
+
     });
     // Configure file upload with multer options
     this.configureFileUpload(options.fileStorageDirectory);

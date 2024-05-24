@@ -10,8 +10,6 @@ export class FirebaseAdminService {
     @repository(UsersFcmTokensRepository)
     private usersFcmRepo: UsersFcmTokensRepository,
   ) {
-    if (admin.apps.length === 0) {
-    }
   }
 
   async prepareMessageNotification(

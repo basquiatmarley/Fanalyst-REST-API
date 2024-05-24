@@ -17,7 +17,7 @@ import {
 import {SecurityBindings, securityId, UserProfile} from '@loopback/security';
 import {compare, genSalt, hash} from 'bcryptjs';
 import {randomBytes, randomUUID} from 'crypto';
-import {OAuth2Client} from 'google-auth-library';
+import * as admin from 'firebase-admin';
 import {Users, UsersRelations} from '../models';
 import {UsersRepository} from '../repositories';
 import {EMAIL_SERVICE, EmailService} from '../services/mailers.service';
@@ -126,30 +126,50 @@ export class AuthController {
       },
     })
     request: {
-      email: string;
-      name: string;
-      imageUrl: string | '';
       idToken: string;
       type: string;
     },
-  ): Promise<{token: string; userData: Users & UsersRelations}> {
+  ): Promise<{token: string; userData: Users & UsersRelations | null}> {
     var validateToken = false;
+    let userPayload: {[key: string]: any} | null;
+
     if (request.type == 'GOOGLE') {
+      userPayload = null;
       try {
-        const clientId = [
-          '104706451517-5l8k8f4krp1a8ab3b7c9cuedeb8uiudc.apps.googleusercontent.com',
-          '104706451517-bpo0ca1oun9t22ain7gq84l3b169qve2.apps.googleusercontent.com',
-          '104706451517-5l8k8f4krp1a8ab3b7c9cuedeb8uiudc.apps.googleusercontent.com',
-        ];
-        const client = new OAuth2Client();
-        const ticket = await client.verifyIdToken({
-          idToken: request.idToken,
-          audience: clientId,
-        });
-        const payload = ticket.getPayload();
-        if (payload?.sub != null) {
+        // const clientId = [
+        //   '104706451517-5l8k8f4krp1a8ab3b7c9cuedeb8uiudc.apps.googleusercontent.com',
+        //   '104706451517-bpo0ca1oun9t22ain7gq84l3b169qve2.apps.googleusercontent.com',
+        //   '104706451517-5l8k8f4krp1a8ab3b7c9cuedeb8uiudc.apps.googleusercontent.com',
+        // ];
+        // const client = new OAuth2Client();
+        // const ticket = await client.verifyIdToken({
+        //   idToken: request.idToken,
+        //   audience: clientId,
+        // });
+        // const payload = ticket.getPayload();
+        // if (payload?.sub != null) {
+        //   console.log(payload);
+        //   userPayload = {
+        //     name: payload.name,
+        //     email: payload.email,
+        //     imageUrl: payload.picture,
+        //   };
+
+        //   validateToken = true;
+        // }
+        console.log("ID TOKEN", request.idToken);
+        const decodedToken = await admin.auth().verifyIdToken(request.idToken);
+        const userRecord = await admin.auth().getUser(decodedToken.uid);
+        console.log(userRecord);
+        if (userRecord.uid != null) {
           validateToken = true;
+          userPayload = {
+            email: userRecord.email,
+            name: userRecord.displayName,
+            imageUrl: userRecord.photoURL,
+          };
         }
+
         // // if (payload?.sub != null) {
         //   // const userId = payload['sub'];
         //   validateToken = true
@@ -159,31 +179,48 @@ export class AuthController {
       }
 
       //NEED VERIFY ID TOKEN
+    } else {
+      userPayload = null;
+      try {
+        const decodedToken = await admin.auth().verifyIdToken(request.idToken);
+        const userRecord = await admin.auth().getUser(decodedToken.uid);
+        console.log('User Info:', userRecord.toJSON());
+        userPayload = {
+          email: userRecord.email,
+          name: userRecord.displayName,
+          imageUrl: userRecord.photoURL,
+        };
+      } catch (error) {
+        throw new Error('Invalid ID token');
+      }
     }
 
     if (!validateToken) {
       throw new HttpErrors.NotFound('Invalid token.');
     }
 
+    if (userPayload == null) {
+      throw new HttpErrors.NotFound('User payload empty.');
+    }
     var findOneUser = await this.usersRepository.findOne({
       where: {
-        and: [{email: request.email}, {status: 1}],
+        and: [{email: userPayload.email}, {status: 1}],
       },
     });
-    var nameSplt = request.name.split(' ');
+    var nameSplt = userPayload.name.split(' ');
     var lastName = nameSplt[1] != undefined ? nameSplt[1] : '';
     if (!findOneUser) {
       var password = await hash(
-        request.email + randomUUID + request.name,
+        userPayload.email + randomUUID + userPayload.name,
         await genSalt(),
       );
       var newUser = {
         firstName: nameSplt[0],
         lastName: lastName,
         password: password,
-        email: request.email,
+        email: userPayload.email,
         status: 1,
-        imageUrl: request.imageUrl,
+        imageUrl: userPayload.imageUrl,
         role: 'member',
         otp: '',
         statusDeleted: 0,
@@ -197,6 +234,7 @@ export class AuthController {
     });
 
     return {token: token, userData: findOneUser};
+
   }
 
   @authenticate('jwt')

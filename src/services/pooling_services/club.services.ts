@@ -11,8 +11,8 @@ class ClubService {
   constructor(context: Context) {
     this.context = context;
     this.clientAxios = axios.create({
-      baseURL: 'https://www.thesportsdb.com/api', // Base URL for your API
-      timeout: 5000, // Set a request timeout
+      baseURL: 'https://www.thesportsdb.com/api',
+      timeout: 5000,
     });
   }
 

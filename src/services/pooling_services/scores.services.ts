@@ -244,19 +244,17 @@ class ScoresServices {
                         updateLongestLoseStreak = updateLongestLoseStreak + 1;
                       }
                     }
-                    console.log([updateWinStreak, updateWinStreak]);
                     if (
                       updateWinStreak % 5 == 0 &&
                       updateStatusWinStreak == 1
                     ) {
                       console.log('SEND NOTIFI WIN STREAK');
-                      var notifyStreak = await notificationService.create(
+                      await notificationService.create(
                         userPrediction.createdBy!,
                         userPrediction.id,
                         4,
                         `${updateWinStreak}`,
                       );
-                      console.log(notifyStreak);
                     }
                     await usersPredSummaryRepo.updateById(getOneSummary.id, {
                       winStreak: updateWinStreak,
@@ -267,6 +265,7 @@ class ScoresServices {
                       incorrect: updateIncorrect,
                       statusLoseStreak: updateStatusLoseStreak,
                       statusWinStreak: updateStatusWinStreak,
+                      percentageWin: updateCorrect != 0 ? updateCorrect / getOneSummary.countPrediction * 100 : 0,
                     });
                   }
 
@@ -325,6 +324,7 @@ class ScoresServices {
                         incorrect: updateIncorrect,
                         statusLoseStreak: updateStatusLoseStreak,
                         statusWinStreak: updateStatusWinStreak,
+                        percentageWin: updateCorrect != 0 ? updateCorrect / getOneSummaryAts.countPrediction * 100 : 0,
                       },
                     );
                   }
